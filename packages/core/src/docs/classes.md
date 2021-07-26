@@ -84,11 +84,6 @@ The namespace can be changed _at build time_ to produce a custom Blueprint build
 requires several things:
 
 1. You must use Sass and import Blueprint Sass source into your app, rather than using the CSS file distributed in the NPM package.
-    - Compiling Blueprint Sass source requires two additional tools:
-      [node-sass-package-importer](https://www.npmjs.com/package/node-sass-package-importer)
-      for resolving node_modules imports and
-      [sass-inline-svg](https://github.com/haithembelhaj/sass-inline-svg) for
-      inlining SVG images.
 1. Define the `$ns` Sass variable in your app styles before importing `blueprint.scss` to update the generated CSS.
 1. When bundling your code, set the `BLUEPRINT_NAMESPACE` environment variable to the same value to update the generated `Classes` constants. The easiest way to do this is on the command line: `BLUEPRINT_NAMESPACE="custom" webpack ...args`
 
