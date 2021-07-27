@@ -8,6 +8,7 @@
 const fs = require("fs");
 const path = require("path");
 const SVGO = require("svgo");
+
 const { COPYRIGHT_HEADER } = require("./constants");
 
 const svgo = new SVGO({ plugins: [{ convertShapeToPath: { convertArcs: true } }] });
@@ -80,6 +81,7 @@ writeLinesToFile(
 
 /**
  * Writes lines to given filename in GENERATED_SRC_DIR.
+ *
  * @param {string} filename
  * @param {Array<string>} lines
  */
@@ -91,6 +93,7 @@ async function writeLinesToFile(filename, ...lines) {
 
 /**
  * Returns Sass variable name `$pt-icon-{name}`.
+ *
  * @param {IconMetadata} icon
  */
 function toSassVariable(icon) {
@@ -100,6 +103,7 @@ function toSassVariable(icon) {
 /**
  * Converts iconName to uppercase constant name.
  * Example: `"align-left"` &rArr; `"ALIGN_LEFT"`
+ *
  * @param {IconMetadata} icon
  */
 function toEnumName(icon) {
@@ -109,6 +113,7 @@ function toEnumName(icon) {
 /**
  * Loads SVG file for each icon, extracts path strings `d="path-string"`,
  * and constructs map of icon name to array of path strings.
+ *
  * @param {string} objectName
  * @param {16 | 20} size
  */
