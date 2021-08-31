@@ -21,16 +21,16 @@ import * as Classes from "./classes";
 import { Rect } from "./rect";
 import { Utils } from "./utils";
 
-export type ICellMapper<T> = (rowIndex: number, columnIndex: number) => T;
-export type IRowMapper<T> = (rowIndex: number) => T;
-export type IColumnMapper<T> = (columnIndex: number) => T;
+export type CellMapper<T> = (rowIndex: number, columnIndex: number) => T;
+export type RowMapper<T> = (rowIndex: number) => T;
+export type ColumnMapper<T> = (columnIndex: number) => T;
 
-export interface IRowIndices {
+export interface RowIndices {
     rowIndexStart: number;
     rowIndexEnd: number;
 }
 
-export interface IColumnIndices {
+export interface ColumnIndices {
     columnIndexStart: number;
     columnIndexEnd: number;
 }
@@ -191,7 +191,7 @@ export class Grid {
      * in a runtime of `O(log(rows) + log(cols))` plus the `O(irows * icols)`
      * iteration of intersecting cells.
      */
-    public mapCellsInRect<T>(rect: Rect, callback: ICellMapper<T>): T[] {
+    public mapCellsInRect<T>(rect: Rect, callback: CellMapper<T>): T[] {
         const results: T[] = [];
         if (rect == null) {
             return results;
@@ -212,7 +212,7 @@ export class Grid {
      *
      * See Grid.mapCellsInRect for more details.
      */
-    public mapRowsInRect<T>(rect: Rect, callback: IRowMapper<T>): T[] {
+    public mapRowsInRect<T>(rect: Rect, callback: RowMapper<T>): T[] {
         const results: T[] = [];
         if (rect == null) {
             return results;
@@ -230,7 +230,7 @@ export class Grid {
      *
      * See Grid.mapCellsInRect for more details.
      */
-    public mapColumnsInRect<T>(rect: Rect, callback: IColumnMapper<T>): T[] {
+    public mapColumnsInRect<T>(rect: Rect, callback: ColumnMapper<T>): T[] {
         const results: T[] = [];
         if (rect == null) {
             return results;
@@ -247,15 +247,16 @@ export class Grid {
      * Returns the start and end indices of rows that intersect with the given
      * `Rect` argument.
      */
-    public getRowIndicesInRect(rect: Rect, includeGhostCells = false, limit = Grid.DEFAULT_MAX_ROWS): IRowIndices {
+    public getRowIndicesInRect(rect: Rect, includeGhostCells = false, limit = Grid.DEFAULT_MAX_ROWS): RowIndices {
         if (rect == null) {
             return { rowIndexEnd: 0, rowIndexStart: 0 };
         }
 
         const searchEnd = includeGhostCells ? Math.max(this.numRows, Grid.DEFAULT_MAX_ROWS) : this.numRows;
+        const { top = 0, height } = rect;
         const { start, end } = this.getIndicesInInterval(
-            rect.top,
-            rect.top + rect.height,
+            top,
+            top + height,
             searchEnd,
             !includeGhostCells,
             this.getCumulativeHeightAt,
@@ -276,15 +277,16 @@ export class Grid {
         rect: Rect,
         includeGhostCells = false,
         limit = Grid.DEFAULT_MAX_COLUMNS,
-    ): IColumnIndices {
+    ): ColumnIndices {
         if (rect == null) {
             return { columnIndexEnd: 0, columnIndexStart: 0 };
         }
 
         const searchEnd = includeGhostCells ? Math.max(this.numCols, Grid.DEFAULT_MAX_COLUMNS) : this.numCols;
+        const { left = 0, width } = rect;
         const { start, end } = this.getIndicesInInterval(
-            rect.left,
-            rect.left + rect.width,
+            left,
+            left + width,
             searchEnd,
             !includeGhostCells,
             this.getCumulativeWidthAt,

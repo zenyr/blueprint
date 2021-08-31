@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-import * as React from "react";
+import React from "react";
 
-import { AnchorButton, Button, Classes, Code, Dialog, H5, Intent, Switch } from "@blueprintjs/core";
-import { Example, handleBooleanChange, IExampleProps } from "@blueprintjs/docs-theme";
-import { Tooltip2 } from "@blueprintjs/popover2";
+import { AnchorButton, Button, Classes, Code, Dialog, H5, Intent, Switch, Tooltip } from "@blueprintjs/core";
+import { Example, handleBooleanChange, ExampleProps } from "@blueprintjs/docs-theme";
 
-import { IBlueprintExampleData } from "../../tags/types";
+import { BlueprintExampleData } from "../../tags/types";
 
-export interface IDialogExampleState {
+export interface DialogExampleState {
     autoFocus: boolean;
     canEscapeKeyClose: boolean;
     canOutsideClickClose: boolean;
@@ -30,8 +29,8 @@ export interface IDialogExampleState {
     isOpen: boolean;
     usePortal: boolean;
 }
-export class DialogExample extends React.PureComponent<IExampleProps<IBlueprintExampleData>, IDialogExampleState> {
-    public state: IDialogExampleState = {
+export class DialogExample extends React.PureComponent<ExampleProps<BlueprintExampleData>, DialogExampleState> {
+    public state: DialogExampleState = {
         autoFocus: true,
         canEscapeKeyClose: true,
         canOutsideClickClose: true,
@@ -91,9 +90,9 @@ export class DialogExample extends React.PureComponent<IExampleProps<IBlueprintE
                     </div>
                     <div className={Classes.DIALOG_FOOTER}>
                         <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-                            <Tooltip2 content="This button is hooked up to close the dialog.">
+                            <Tooltip content="This button is hooked up to close the dialog.">
                                 <Button onClick={this.handleClose}>Close</Button>
-                            </Tooltip2>
+                            </Tooltip>
                             <AnchorButton
                                 intent={Intent.PRIMARY}
                                 href="https://www.palantir.com/palantir-foundry/"

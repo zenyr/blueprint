@@ -15,30 +15,27 @@
  */
 
 import classNames from "classnames";
-import * as React from "react";
+import React from "react";
 
 import {
-    AbstractPureComponent2,
+    AbstractPureComponent,
     Button,
     DISPLAYNAME_PREFIX,
-    InputGroupProps2,
+    InputGroupProps,
     InputGroup,
-    IPopoverProps,
-    IRef,
+    PopoverProps,
+    Ref,
     Keys,
     Popover,
-    Position,
     refHandler,
     setRef,
 } from "@blueprintjs/core";
+import { Cross, Search } from "@blueprintjs/icons";
 
-import { Classes, IListItemsProps } from "../../common";
-import { IQueryListRendererProps, QueryList } from "../query-list/queryList";
+import { Classes, ListItemsProps } from "../../common";
+import { QueryListRendererProps, QueryList } from "../query-list/queryList";
 
-// eslint-disable-next-line deprecation/deprecation
-export type SelectProps<T> = ISelectProps<T>;
-/** @deprecated use SelectProps */
-export interface ISelectProps<T> extends IListItemsProps<T> {
+export interface SelectProps<T> extends ListItemsProps<T> {
     /**
      * Whether the component should take up the full width of its container.
      * This overrides `popoverProps.fill`. You also have to ensure that the child
@@ -68,7 +65,7 @@ export interface ISelectProps<T> extends IListItemsProps<T> {
      * `onQueryChange` instead of `inputProps.value` and `inputProps.onChange`
      * to control this input.
      */
-    inputProps?: InputGroupProps2;
+    inputProps?: InputGroupProps;
 
     /**
      * Whether the select popover should be styled so that it matches the width of the target.
@@ -82,7 +79,7 @@ export interface ISelectProps<T> extends IListItemsProps<T> {
 
     /** Props to spread to `Popover`. Note that `content` cannot be changed. */
     // eslint-disable-next-line @typescript-eslint/ban-types
-    popoverProps?: Partial<IPopoverProps> & object;
+    popoverProps?: Partial<PopoverProps> & object;
 
     /**
      * Whether the active item should be reset to the first matching item _when
@@ -93,18 +90,18 @@ export interface ISelectProps<T> extends IListItemsProps<T> {
     resetOnClose?: boolean;
 }
 
-export interface ISelectState {
+export interface SelectState {
     isOpen: boolean;
 }
 
-export class Select<T> extends AbstractPureComponent2<SelectProps<T>, ISelectState> {
+export class Select<T> extends AbstractPureComponent<SelectProps<T>, SelectState> {
     public static displayName = `${DISPLAYNAME_PREFIX}.Select`;
 
     public static ofType<U>() {
         return Select as new (props: SelectProps<U>) => Select<U>;
     }
 
-    public state: ISelectState = { isOpen: false };
+    public state: SelectState = { isOpen: false };
 
     private TypedQueryList = QueryList.ofType<T>();
 
@@ -114,7 +111,7 @@ export class Select<T> extends AbstractPureComponent2<SelectProps<T>, ISelectSta
 
     private previousFocusedElement: HTMLElement | undefined;
 
-    private handleInputRef: IRef<HTMLInputElement> = refHandler(this, "inputElement", this.props.inputProps?.inputRef);
+    private handleInputRef: Ref<HTMLInputElement> = refHandler(this, "inputElement", this.props.inputProps?.inputRef);
 
     private handleQueryListRef = (ref: QueryList<T> | null) => (this.queryList = ref);
 
@@ -132,7 +129,7 @@ export class Select<T> extends AbstractPureComponent2<SelectProps<T>, ISelectSta
         );
     }
 
-    public componentDidUpdate(prevProps: SelectProps<T>, prevState: ISelectState) {
+    public componentDidUpdate(prevProps: SelectProps<T>, prevState: SelectState) {
         if (prevProps.inputProps?.inputRef !== this.props.inputProps?.inputRef) {
             setRef(prevProps.inputProps?.inputRef, null);
             this.handleInputRef = refHandler(this, "inputElement", this.props.inputProps?.inputRef);
@@ -144,7 +141,7 @@ export class Select<T> extends AbstractPureComponent2<SelectProps<T>, ISelectSta
         }
     }
 
-    private renderQueryList = (listProps: IQueryListRendererProps<T>) => {
+    private renderQueryList = (listProps: QueryListRendererProps<T>) => {
         // not using defaultProps cuz they're hard to type with generics (can't use <T> on static members)
         const {
             fill,
@@ -164,22 +161,28 @@ export class Select<T> extends AbstractPureComponent2<SelectProps<T>, ISelectSta
                 popoverProps.modifiers = {};
             }
 
-            popoverProps.modifiers.minWidth = {
-                enabled: true,
-                fn: data => {
-                    data.styles.width = `${data.offsets.reference.width}px`;
-                    return data;
+            popoverProps.customModifiers = [
+                {
+                    effect: ({ state }) => {
+                        const referenceWidth = state.elements.reference.getBoundingClientRect().width;
+                        state.elements.popper.style.width = `${referenceWidth}px`;
+                    },
+                    enabled: true,
+                    fn: ({ state }) => {
+                        state.styles.popper.width = `${state.rects.reference.width}px`;
+                    },
+                    name: "minWidth",
+                    phase: "beforeWrite",
+                    requires: ["computeStyles"],
                 },
-                order: 800,
-            };
-
+            ];
             popoverProps.usePortal = false;
-            popoverProps.wrapperTagName = "div";
+            popoverProps.targetTagName = "div";
         }
 
         const input = (
             <InputGroup
-                leftIcon="search"
+                leftIcon={<Search />}
                 placeholder="Filter..."
                 rightElement={this.maybeRenderClearButton(listProps.query)}
                 {...inputProps}
@@ -191,15 +194,20 @@ export class Select<T> extends AbstractPureComponent2<SelectProps<T>, ISelectSta
 
         const { handleKeyDown, handleKeyUp } = listProps;
         return (
-            /* eslint-disable-next-line deprecation/deprecation */
             <Popover
                 autoFocus={false}
                 enforceFocus={false}
                 isOpen={this.state.isOpen}
                 disabled={disabled}
-                position={Position.BOTTOM_LEFT}
+                placement="bottom-start"
                 {...popoverProps}
                 className={classNames(listProps.className, popoverProps.className)}
+                content={
+                    <div onKeyDown={handleKeyDown} onKeyUp={handleKeyUp}>
+                        {filterable ? input : undefined}
+                        {listProps.itemList}
+                    </div>
+                }
                 onInteraction={this.handlePopoverInteraction}
                 popoverClassName={classNames(Classes.SELECT_POPOVER, popoverProps.popoverClassName, {
                     [Classes.SELECT_MATCH_TARGET_WIDTH]: matchTargetWidth,
@@ -214,17 +222,12 @@ export class Select<T> extends AbstractPureComponent2<SelectProps<T>, ISelectSta
                 >
                     {this.props.children}
                 </div>
-                <div onKeyDown={handleKeyDown} onKeyUp={handleKeyUp}>
-                    {filterable ? input : undefined}
-                    {listProps.itemList}
-                </div>
-                {/* eslint-disable-next-line deprecation/deprecation */}
             </Popover>
         );
     };
 
     private maybeRenderClearButton(query: string) {
-        return query.length > 0 ? <Button icon="cross" minimal={true} onClick={this.resetQuery} /> : undefined;
+        return query.length > 0 ? <Button icon={<Cross />} minimal={true} onClick={this.resetQuery} /> : undefined;
     }
 
     private handleTargetKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {

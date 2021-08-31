@@ -15,11 +15,10 @@
  */
 
 import classNames from "classnames";
-import * as React from "react";
+import React from "react";
 import DayPicker, { CaptionElementProps, DayModifiers, DayPickerProps, NavbarElementProps } from "react-day-picker";
-import { polyfill } from "react-lifecycles-compat";
 
-import { AbstractPureComponent2, Boundary, DISPLAYNAME_PREFIX, Divider, Props } from "@blueprintjs/core";
+import { AbstractPureComponent, Boundary, DISPLAYNAME_PREFIX, Divider, Props } from "@blueprintjs/core";
 
 import * as DateClasses from "./common/classes";
 import { DateRange } from "./common/dateRange";
@@ -32,7 +31,7 @@ import {
     getDefaultMaxDate,
     getDefaultMinDate,
     HOVERED_RANGE_MODIFIER,
-    IDatePickerBaseProps,
+    DatePickerBaseProps,
     DatePickerModifiers,
     SELECTED_RANGE_MODIFIER,
 } from "./datePickerCore";
@@ -41,10 +40,7 @@ import { DateRangeSelectionStrategy } from "./dateRangeSelectionStrategy";
 import { DateRangeShortcut, Shortcuts } from "./shortcuts";
 import { TimePicker } from "./timePicker";
 
-// eslint-disable-next-line deprecation/deprecation
-export type DateRangePickerProps = IDateRangePickerProps;
-/** @deprecated use DateRangePickerProps */
-export interface IDateRangePickerProps extends IDatePickerBaseProps, Props {
+export interface DateRangePickerProps extends DatePickerBaseProps, Props {
     /**
      * Whether the start and end dates of the range can be the same day.
      * If `true`, clicking a selected date will create a one-day range.
@@ -127,7 +123,7 @@ export interface IDateRangePickerProps extends IDatePickerBaseProps, Props {
 }
 
 // leftView and rightView controls the DayPicker displayed month
-export interface IDateRangePickerState {
+export interface DateRangePickerState {
     hoverValue?: DateRange;
     leftView?: MonthAndYear;
     rightView?: MonthAndYear;
@@ -136,8 +132,7 @@ export interface IDateRangePickerState {
     selectedShortcutIndex?: number;
 }
 
-@polyfill
-export class DateRangePicker extends AbstractPureComponent2<DateRangePickerProps, IDateRangePickerState> {
+export class DateRangePicker extends AbstractPureComponent<DateRangePickerProps, DateRangePickerState> {
     public static defaultProps: DateRangePickerProps = {
         allowSingleDayRange: false,
         contiguousCalendarMonths: true,
@@ -190,8 +185,8 @@ export class DateRangePicker extends AbstractPureComponent2<DateRangePickerProps
         },
     };
 
-    public constructor(props: DateRangePickerProps, context?: any) {
-        super(props, context);
+    public constructor(props: DateRangePickerProps) {
+        super(props);
         const value = getInitialValue(props);
         const time: DateRange = value;
         const initialMonth = getInitialMonth(props, value);
@@ -247,7 +242,7 @@ export class DateRangePicker extends AbstractPureComponent2<DateRangePickerProps
         );
     }
 
-    public componentDidUpdate(prevProps: DateRangePickerProps, prevState: IDateRangePickerState) {
+    public componentDidUpdate(prevProps: DateRangePickerProps, prevState: DateRangePickerState) {
         super.componentDidUpdate(prevProps, prevState);
 
         if (
@@ -694,9 +689,9 @@ export class DateRangePicker extends AbstractPureComponent2<DateRangePickerProps
 function getStateChange(
     value: DateRange,
     nextValue: DateRange,
-    state: IDateRangePickerState,
+    state: DateRangePickerState,
     contiguousCalendarMonths: boolean,
-): IDateRangePickerState {
+): DateRangePickerState {
     if (value != null && nextValue == null) {
         return { value: [null, null] };
     } else if (nextValue != null) {

@@ -17,8 +17,8 @@
 // tslint:disable object-literal-sort-keys
 /* eslint-disable max-classes-per-file, react/display-name, react/jsx-no-bind, react/no-did-mount-set-state */
 
-import * as React from "react";
-import * as ReactDOM from "react-dom";
+import React from "react";
+import ReactDOM from "react-dom";
 
 import { Button, Classes, H4, Intent, Menu, MenuDivider, MenuItem } from "@blueprintjs/core";
 import {
@@ -26,17 +26,17 @@ import {
     Column,
     ColumnHeaderCell,
     CopyCellsMenuItem,
-    EditableCell2,
+    EditableCell,
     EditableName,
-    IColumnHeaderCellProps,
-    IMenuContext,
+    ColumnHeaderCellProps,
+    MenuContext,
     Region,
     JSONFormat,
     RegionCardinality,
     Regions,
     RowHeaderCell,
     SelectionModes,
-    Table2,
+    Table,
     Utils,
 } from "@blueprintjs/table/src";
 
@@ -66,7 +66,7 @@ function getTableComponent(numCols: number, numRows: number, columnProps?: any, 
     const columns = Utils.times(numCols, index => {
         return <Column key={index} {...columnPropsWithDefaults} />;
     });
-    return <Table2 {...tablePropsWithDefaults}>{columns}</Table2>;
+    return <Table {...tablePropsWithDefaults}>{columns}</Table>;
 }
 
 // tslint:disable jsx-no-lambda
@@ -108,21 +108,21 @@ class FormatsTable extends React.Component {
 
     private strings = Utils.times(FormatsTable.ROWS, () => "ABC " + Math.random() * 10000);
 
-    private formatsTable: Table2;
+    private formatsTable: Table;
 
     public render() {
-        const saveTable = (table: Table2) => {
+        const saveTable = (table: Table) => {
             this.formatsTable = table;
         };
 
         return (
-            <Table2 ref={saveTable} numRows={FormatsTable.ROWS} enableRowResizing={true}>
+            <Table ref={saveTable} numRows={FormatsTable.ROWS} enableRowResizing={true}>
                 <Column name="Default" cellRenderer={this.renderDefaultCell} />
                 <Column name="Wrapped Text" cellRenderer={this.renderDefaultCellWrapped} />
                 <Column name="JSON" cellRenderer={this.renderJSONCell} />
                 <Column name="JSON wrapped text" cellRenderer={this.renderJSONCellWrappedText} />
                 <Column name="JSON wrapped cell" cellRenderer={this.renderJSONWrappedCell} />
-            </Table2>
+            </Table>
         );
     }
 
@@ -172,7 +172,7 @@ class FormatsTable extends React.Component {
 
 ReactDOM.render(<FormatsTable />, document.getElementById("table-formats"));
 
-interface IEditableTableState {
+interface EditableTableState {
     intents: Intent[];
     names: string[];
     sparseCellData: { [key: string]: string };
@@ -180,12 +180,12 @@ interface IEditableTableState {
 }
 
 // eslint-disable-next-line @typescript-eslint/ban-types
-class EditableTable extends React.Component<{}, IEditableTableState> {
+class EditableTable extends React.Component<{}, EditableTableState> {
     public static dataKey = (rowIndex: number, columnIndex: number) => {
         return `${rowIndex}-${columnIndex}`;
     };
 
-    public state: IEditableTableState = {
+    public state: EditableTableState = {
         intents: [],
         names: ["Please", "Rename", "Me"],
         sparseCellData: {},
@@ -197,14 +197,14 @@ class EditableTable extends React.Component<{}, IEditableTableState> {
             <Column key={index} cellRenderer={this.renderCell} columnHeaderCellRenderer={this.renderColumnHeader} />
         ));
         return (
-            <Table2
+            <Table
                 numRows={7}
                 selectionModes={SelectionModes.COLUMNS_AND_CELLS}
                 enableFocusedCell={true}
                 enableColumnInteractionBar={true}
             >
                 {columns}
-            </Table2>
+            </Table>
         );
     }
 
@@ -212,7 +212,7 @@ class EditableTable extends React.Component<{}, IEditableTableState> {
         const dataKey = EditableTable.dataKey(rowIndex, columnIndex);
         const value = this.state.sparseCellData[dataKey];
         return (
-            <EditableCell2
+            <EditableCell
                 value={value == null ? "" : value}
                 intent={this.state.sparseCellIntent[dataKey]}
                 rowIndex={rowIndex}
@@ -339,7 +339,7 @@ class RowSelectableTable extends React.Component {
     public render() {
         return (
             <div>
-                <Table2
+                <Table
                     bodyContextMenuRenderer={bodyContextMenuRenderer}
                     numRows={7}
                     enableRowHeader={false}
@@ -350,7 +350,7 @@ class RowSelectableTable extends React.Component {
                     <Column name="Cells" />
                     <Column name="Select" />
                     <Column name="Rows" />
-                </Table2>
+                </Table>
                 <br />
                 <Button onClick={this.handleClear} intent={Intent.PRIMARY}>
                     Clear Selection
@@ -389,7 +389,7 @@ class AdjustableColumnsTable extends React.Component {
     };
 
     public render() {
-        return <Table2 numRows={7}>{this.state.columns}</Table2>;
+        return <Table numRows={7}>{this.state.columns}</Table>;
     }
 
     public componentDidMount() {
@@ -450,7 +450,7 @@ ReactDOM.render(
     document.getElementById("table-1"),
 );
 
-const bodyContextMenuRenderer = (context: IMenuContext) => {
+const bodyContextMenuRenderer = (context: MenuContext) => {
     const getCellData = (row: number, col: number) => {
         return Utils.toBase26Alpha(col) + (row + 1);
     };
@@ -554,7 +554,7 @@ ReactDOM.render(
     document.getElementById("table-6"),
 );
 
-class CustomHeaderCell extends React.Component<IColumnHeaderCellProps> {
+class CustomHeaderCell extends React.Component<ColumnHeaderCellProps> {
     public render() {
         return <ColumnHeaderCell {...this.props}>Hey dawg.</ColumnHeaderCell>;
     }
@@ -580,10 +580,10 @@ const longContentRenderCell = () => {
 };
 
 ReactDOM.render(
-    <Table2 numRows={4}>
+    <Table numRows={4}>
         <Column name="My" />
-        <Column name="Table2" cellRenderer={longContentRenderCell} />
-    </Table2>,
+        <Column name="Table" cellRenderer={longContentRenderCell} />
+    </Table>,
     document.getElementById("table-8"),
 );
 
@@ -598,11 +598,11 @@ ReactDOM.render(
         <div style={{ zIndex: 2 }} className="stack-fill">
             <br />Z = 2
         </div>
-        <Table2 numRows={3}>
+        <Table numRows={3}>
             <Column name="A" />
             <Column name="B" />
             <Column name="C" />
-        </Table2>
+        </Table>
         <div className="stack-fill">
             <br />
             <br />
@@ -612,7 +612,7 @@ ReactDOM.render(
     document.getElementById("table-9"),
 );
 
-interface IReorderableTableExampleState {
+interface ReorderableTableExampleState {
     children?: JSX.Element[];
     data?: any[];
 }
@@ -626,8 +626,8 @@ const REORDERABLE_TABLE_DATA = [
 ].map(([letter, fruit, animal, country, city]) => ({ letter, fruit, animal, country, city }));
 
 // eslint-disable-next-line @typescript-eslint/ban-types
-class ReorderableTableExample extends React.Component<{}, IReorderableTableExampleState> {
-    public state: IReorderableTableExampleState = {
+class ReorderableTableExample extends React.Component<{}, ReorderableTableExampleState> {
+    public state: ReorderableTableExampleState = {
         data: REORDERABLE_TABLE_DATA,
     };
 
@@ -644,7 +644,7 @@ class ReorderableTableExample extends React.Component<{}, IReorderableTableExamp
 
     public render() {
         return (
-            <Table2
+            <Table
                 enableColumnReordering={true}
                 enableRowReordering={true}
                 numRows={this.state.data.length}
@@ -652,7 +652,7 @@ class ReorderableTableExample extends React.Component<{}, IReorderableTableExamp
                 onRowsReordered={this.handleRowsReordered}
             >
                 {this.state.children}
-            </Table2>
+            </Table>
         );
     }
 

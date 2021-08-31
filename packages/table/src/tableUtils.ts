@@ -16,7 +16,11 @@
 
 import * as React from "react";
 
+import { HotkeyConfig } from "@blueprintjs/core";
+
 import { Utils } from "./common/utils";
+import { RegionCardinality } from "./regions";
+import type { TableHotkeys } from "./tableHotkeys";
 import type { TableProps } from "./tableProps";
 
 export function clampNumFrozenColumns(props: TableProps) {
@@ -41,4 +45,126 @@ export function hasLoadingOption(loadingOptions: string[], loadingOption: string
         return undefined;
     }
     return loadingOptions.indexOf(loadingOption) >= 0;
+}
+
+export function isSelectionModeEnabled(
+    props: TableProps,
+    selectionMode: RegionCardinality,
+    selectionModes = props.selectionModes,
+): boolean {
+    const { children, numRows } = props;
+    const numColumns = React.Children.count(children);
+    return selectionModes.indexOf(selectionMode) >= 0 && numRows > 0 && numColumns > 0;
+}
+
+export function getHotkeysFromProps(props: TableProps, hotkeysImpl: TableHotkeys): HotkeyConfig[] {
+    const { getCellClipboardData, enableFocusedCell, enableMultipleSelection, selectionModes } = props;
+    const hotkeys: HotkeyConfig[] = [];
+
+    if (getCellClipboardData != null) {
+        hotkeys.push({
+            combo: "mod+c",
+            group: "Table",
+            label: "Copy selected table cells",
+            onKeyDown: hotkeysImpl.handleCopy,
+        });
+    }
+
+    const isSomeSelectionModeEnabled = selectionModes.length > 0;
+    if (enableMultipleSelection && isSomeSelectionModeEnabled) {
+        hotkeys.push(
+            {
+                combo: "shift+up",
+                group: "Table",
+                label: "Resize selection upward",
+                onKeyDown: hotkeysImpl.handleSelectionResizeUp,
+            },
+            {
+                combo: "shift+down",
+                group: "Table",
+                label: "Resize selection downward",
+                onKeyDown: hotkeysImpl.handleSelectionResizeDown,
+            },
+            {
+                combo: "shift+left",
+                group: "Table",
+                label: "Resize selection leftward",
+                onKeyDown: hotkeysImpl.handleSelectionResizeLeft,
+            },
+            {
+                combo: "shift+right",
+                group: "Table",
+                label: "Resize selection rightward",
+                onKeyDown: hotkeysImpl.handleSelectionResizeRight,
+            },
+        );
+    }
+
+    if (enableFocusedCell != null) {
+        hotkeys.push(
+            {
+                combo: "left",
+                group: "Table",
+                label: "Move focus cell left",
+                onKeyDown: hotkeysImpl.handleFocusMoveLeft,
+            },
+            {
+                combo: "right",
+                group: "Table",
+                label: "Move focus cell right",
+                onKeyDown: hotkeysImpl.handleFocusMoveRight,
+            },
+            {
+                combo: "up",
+                group: "Table",
+                label: "Move focus cell up",
+                onKeyDown: hotkeysImpl.handleFocusMoveUp,
+            },
+            {
+                combo: "down",
+                group: "Table",
+                label: "Move focus cell down",
+                onKeyDown: hotkeysImpl.handleFocusMoveDown,
+            },
+            {
+                allowInInput: true,
+                combo: "tab",
+                group: "Table",
+                label: "Move focus cell tab",
+                onKeyDown: hotkeysImpl.handleFocusMoveRightInternal,
+            },
+            {
+                allowInInput: true,
+                combo: "shift+tab",
+                group: "Table",
+                label: "Move focus cell shift tab",
+                onKeyDown: hotkeysImpl.handleFocusMoveLeftInternal,
+            },
+            {
+                allowInInput: true,
+                combo: "enter",
+                group: "Table",
+                label: "Move focus cell enter",
+                onKeyDown: hotkeysImpl.handleFocusMoveDownInternal,
+            },
+            {
+                allowInInput: true,
+                combo: "shift+enter",
+                group: "Table",
+                label: "Move focus cell shift enter",
+                onKeyDown: hotkeysImpl.handleFocusMoveUpInternal,
+            },
+        );
+    }
+
+    if (isSelectionModeEnabled(props, RegionCardinality.FULL_TABLE)) {
+        hotkeys.push({
+            combo: "mod+a",
+            group: "Table",
+            label: "Select all",
+            onKeyDown: hotkeysImpl.handleSelectAllHotkey,
+        });
+    }
+
+    return hotkeys;
 }

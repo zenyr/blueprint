@@ -15,26 +15,17 @@
  */
 
 import classNames from "classnames";
-import * as React from "react";
-import { polyfill } from "react-lifecycles-compat";
+import React from "react";
 
-import {
-    AbstractPureComponent2,
-    Icon,
-    IconName,
-    Props,
-    Popover,
-    Position,
-    Utils as CoreUtils,
-} from "@blueprintjs/core";
+import { AbstractPureComponent, Icon, IconName, Popover, Props, Utils as CoreUtils } from "@blueprintjs/core";
 
 import * as Classes from "../common/classes";
-import { columnInteractionBarContextTypes, IColumnInteractionBarContextTypes } from "../common/context";
+import { columnInteractionBarContextTypes, ColumnInteractionBarContextTypes } from "../common/context";
 import { LoadableContent } from "../common/loadableContent";
 import { CLASSNAME_EXCLUDED_FROM_TEXT_MEASUREMENT } from "../common/utils";
-import { HeaderCell, IHeaderCellProps } from "./headerCell";
+import { HeaderCell, HeaderCellProps } from "./headerCell";
 
-export interface IColumnNameProps {
+export interface ColumnNameProps {
     /**
      * The name displayed in the header of the column.
      */
@@ -56,7 +47,7 @@ export interface IColumnNameProps {
     nameRenderer?: (name: string, index?: number) => React.ReactElement<Props>;
 }
 
-export interface IColumnHeaderCellProps extends IHeaderCellProps, IColumnNameProps {
+export interface ColumnHeaderCellProps extends HeaderCellProps, ColumnNameProps {
     /**
      * Specifies if the column is reorderable.
      */
@@ -75,7 +66,7 @@ export interface IColumnHeaderCellProps extends IHeaderCellProps, IColumnNamePro
     menuIcon?: IconName | JSX.Element;
 }
 
-export interface IColumnHeaderCellState {
+export interface ColumnHeaderCellState {
     isActive?: boolean;
 }
 
@@ -83,14 +74,13 @@ export function HorizontalCellDivider(): JSX.Element {
     return <div className={Classes.TABLE_HORIZONTAL_CELL_DIVIDER} />;
 }
 
-@polyfill
-export class ColumnHeaderCell extends AbstractPureComponent2<IColumnHeaderCellProps, IColumnHeaderCellState> {
-    public static defaultProps: IColumnHeaderCellProps = {
+export class ColumnHeaderCell extends AbstractPureComponent<ColumnHeaderCellProps, ColumnHeaderCellState> {
+    public static defaultProps: ColumnHeaderCellProps = {
         isActive: false,
         menuIcon: "chevron-down",
     };
 
-    public static contextTypes: React.ValidationMap<IColumnInteractionBarContextTypes> = columnInteractionBarContextTypes;
+    public static contextTypes: React.ValidationMap<ColumnInteractionBarContextTypes> = columnInteractionBarContextTypes;
 
     /**
      * This method determines if a `MouseEvent` was triggered on a target that
@@ -108,7 +98,7 @@ export class ColumnHeaderCell extends AbstractPureComponent2<IColumnHeaderCellPr
         );
     }
 
-    public context: IColumnInteractionBarContextTypes;
+    public context: ColumnInteractionBarContextTypes;
 
     public state = {
         isActive: false,
@@ -116,16 +106,16 @@ export class ColumnHeaderCell extends AbstractPureComponent2<IColumnHeaderCellPr
 
     public render() {
         const {
-            // from IColumnHeaderCellProps
+            // from ColumnHeaderCellProps
             enableColumnReordering,
             isColumnSelected,
             menuIcon,
 
-            // from IColumnNameProps
+            // from ColumnNameProps
             name,
             nameRenderer,
 
-            // from IHeaderProps
+            // from HeaderProps
             ...spreadableProps
         } = this.props;
 
@@ -204,17 +194,14 @@ export class ColumnHeaderCell extends AbstractPureComponent2<IColumnHeaderCellPr
         return (
             <div className={classes}>
                 <div className={Classes.TABLE_TH_MENU_CONTAINER_BACKGROUND} />
-                {/* eslint-disable-next-line deprecation/deprecation */}
                 <Popover
                     content={menuRenderer(index)}
-                    position={Position.BOTTOM}
+                    placement="bottom"
                     className={Classes.TABLE_TH_MENU}
-                    modifiers={{ preventOverflow: { boundariesElement: "window" } }}
                     onOpened={this.handlePopoverOpened}
                     onClosing={this.handlePopoverClosing}
                 >
                     <Icon icon={menuIcon} />
-                    {/* eslint-disable-next-line deprecation/deprecation */}
                 </Popover>
             </div>
         );

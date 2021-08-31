@@ -15,13 +15,13 @@
  */
 
 import moment from "moment";
-import * as React from "react";
+import React from "react";
 
 import { Radio, RadioGroup } from "@blueprintjs/core";
 import { DateFormatProps } from "@blueprintjs/datetime";
 import { handleNumberChange } from "@blueprintjs/docs-theme";
 
-export interface IFormatSelectProps {
+export interface FormatSelectProps {
     /** Selected formatter. */
     format: DateFormatProps;
 
@@ -29,7 +29,7 @@ export interface IFormatSelectProps {
     onChange: (format: DateFormatProps) => void;
 }
 
-export class FormatSelect extends React.PureComponent<IFormatSelectProps> {
+export class FormatSelect extends React.PureComponent<FormatSelectProps> {
     private handleChange = handleNumberChange(index => this.props.onChange(FORMATS[index]));
 
     public render() {

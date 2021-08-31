@@ -15,12 +15,13 @@
  */
 
 import classNames from "classnames";
-import * as React from "react";
-import { polyfill } from "react-lifecycles-compat";
+import React from "react";
 
-import { AbstractPureComponent2, Classes, IRef, Keys, refHandler, setRef, Utils } from "../../common";
+import { IconName, IconSize } from "@blueprintjs/icons";
+
+import { AbstractPureComponent, Classes, Ref, Keys, refHandler, setRef, Utils } from "../../common";
 import { DISPLAYNAME_PREFIX, HTMLInputProps, IntentProps, Props, MaybeElement } from "../../common/props";
-import { Icon, IconName, IconSize } from "../icon/icon";
+import { Icon } from "../icon/icon";
 import { TagProps, Tag } from "../tag/tag";
 
 /**
@@ -33,10 +34,7 @@ import { TagProps, Tag } from "../tag/tag";
  */
 export type TagInputAddMethod = "default" | "blur" | "paste";
 
-// eslint-disable-next-line deprecation/deprecation
-export type TagInputProps = ITagInputProps;
-/** @deprecated use TagInputProps */
-export interface ITagInputProps extends IntentProps, Props {
+export interface TagInputProps extends IntentProps, Props {
     /**
      * If true, `onAdd` will be invoked when the input loses focus.
      * Otherwise, `onAdd` is only invoked when `enter` is pressed.
@@ -77,7 +75,7 @@ export interface ITagInputProps extends IntentProps, Props {
     inputProps?: HTMLInputProps;
 
     /** Ref handler for the `<input>` element. */
-    inputRef?: IRef<HTMLInputElement>;
+    inputRef?: Ref<HTMLInputElement>;
 
     /** Controlled value of the `<input>` element. This is shorthand for `inputProps={{ value }}`. */
     inputValue?: string;
@@ -184,7 +182,7 @@ export interface ITagInputProps extends IntentProps, Props {
     values: React.ReactNode[];
 }
 
-export interface ITagInputState {
+export interface TagInputState {
     activeIndex: number;
     inputValue: string;
     isInputFocused: boolean;
@@ -194,8 +192,7 @@ export interface ITagInputState {
 /** special value for absence of active tag */
 const NONE = -1;
 
-@polyfill
-export class TagInput extends AbstractPureComponent2<TagInputProps, ITagInputState> {
+export class TagInput extends AbstractPureComponent<TagInputProps, TagInputState> {
     public static displayName = `${DISPLAYNAME_PREFIX}.TagInput`;
 
     public static defaultProps: Partial<TagInputProps> = {
@@ -208,8 +205,8 @@ export class TagInput extends AbstractPureComponent2<TagInputProps, ITagInputSta
 
     public static getDerivedStateFromProps(
         props: Readonly<TagInputProps>,
-        state: Readonly<ITagInputState>,
-    ): Partial<ITagInputState> | null {
+        state: Readonly<TagInputState>,
+    ): Partial<TagInputState> | null {
         if (props.inputValue !== state.prevInputValueProp) {
             return {
                 inputValue: props.inputValue,
@@ -219,7 +216,7 @@ export class TagInput extends AbstractPureComponent2<TagInputProps, ITagInputSta
         return null;
     }
 
-    public state: ITagInputState = {
+    public state: TagInputState = {
         activeIndex: NONE,
         inputValue: this.props.inputValue || "",
         isInputFocused: false,
@@ -227,7 +224,7 @@ export class TagInput extends AbstractPureComponent2<TagInputProps, ITagInputSta
 
     public inputElement: HTMLInputElement | null = null;
 
-    private handleRef: IRef<HTMLInputElement> = refHandler(this, "inputElement", this.props.inputRef);
+    private handleRef: Ref<HTMLInputElement> = refHandler(this, "inputElement", this.props.inputRef);
 
     public render() {
         const { className, disabled, fill, inputProps, intent, large, leftIcon, placeholder, values } = this.props;
@@ -467,9 +464,7 @@ export class TagInput extends AbstractPureComponent2<TagInputProps, ITagInputSta
     private removeIndexFromValues(index: number) {
         const { onChange, onRemove, values } = this.props;
         onRemove?.(values[index], index);
-        if (Utils.isFunction(onChange)) {
-            onChange(values.filter((_, i) => i !== index));
-        }
+        onChange?.(values.filter((_, i) => i !== index));
     }
 
     private invokeKeyPressCallback(

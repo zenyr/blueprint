@@ -15,20 +15,20 @@
  */
 
 import classNames from "classnames";
-import * as React from "react";
-import { polyfill } from "react-lifecycles-compat";
+import React from "react";
 
 import {
-    AbstractPureComponent2,
+    AbstractPureComponent,
     Button,
     Classes as CoreClasses,
     DISPLAYNAME_PREFIX,
     ButtonProps,
-    InputGroupProps2,
-    IPopoverProps,
+    InputGroupProps,
+    PopoverProps,
     Props,
     MenuItem,
 } from "@blueprintjs/core";
+import { CaretDown } from "@blueprintjs/icons";
 import { ItemListPredicate, ItemRenderer, Select } from "@blueprintjs/select";
 
 import * as Classes from "../../common/classes";
@@ -38,10 +38,7 @@ import { getInitialTimezoneItems, getTimezoneItems, TimezoneItem } from "./timez
 
 export { TimezoneDisplayFormat };
 
-// eslint-disable-next-line deprecation/deprecation
-export type TimezonePickerProps = ITimezonePickerProps;
-/** @deprecated use TimezonePickerProps */
-export interface ITimezonePickerProps extends Props {
+export interface TimezonePickerProps extends Props {
     /**
      * The currently selected timezone UTC identifier, e.g. "Pacific/Honolulu".
      * See https://www.iana.org/time-zones for more information.
@@ -104,20 +101,19 @@ export interface ITimezonePickerProps extends Props {
      * If you want to control the filter input, you can pass `value` and `onChange` here
      * to override `Select`'s own behavior.
      */
-    inputProps?: InputGroupProps2;
+    inputProps?: InputGroupProps;
 
     /** Props to spread to `Popover`. Note that `content` cannot be changed. */
-    popoverProps?: Partial<IPopoverProps>;
+    popoverProps?: Partial<PopoverProps>;
 }
 
-export interface ITimezonePickerState {
+export interface TimezonePickerState {
     query: string;
 }
 
 const TypedSelect = Select.ofType<TimezoneItem>();
 
-@polyfill
-export class TimezonePicker extends AbstractPureComponent2<TimezonePickerProps, ITimezonePickerState> {
+export class TimezonePicker extends AbstractPureComponent<TimezonePickerProps, TimezonePickerState> {
     public static displayName = `${DISPLAYNAME_PREFIX}.TimezonePicker`;
 
     public static defaultProps: Partial<TimezonePickerProps> = {
@@ -134,8 +130,8 @@ export class TimezonePicker extends AbstractPureComponent2<TimezonePickerProps, 
 
     private initialTimezoneItems: TimezoneItem[];
 
-    constructor(props: TimezonePickerProps, context?: any) {
-        super(props, context);
+    constructor(props: TimezonePickerProps) {
+        super(props);
 
         const { date = new Date(), showLocalTimezone, inputProps = {} } = props;
         this.state = { query: inputProps.value || "" };
@@ -148,11 +144,11 @@ export class TimezonePicker extends AbstractPureComponent2<TimezonePickerProps, 
         const { children, className, disabled, inputProps, popoverProps } = this.props;
         const { query } = this.state;
 
-        const finalInputProps: InputGroupProps2 = {
+        const finalInputProps: InputGroupProps = {
             placeholder: "Search for timezones...",
             ...inputProps,
         };
-        const finalPopoverProps: Partial<IPopoverProps> = {
+        const finalPopoverProps: Partial<PopoverProps> = {
             ...popoverProps,
             popoverClassName: classNames(Classes.TIMEZONE_PICKER_POPOVER, popoverProps.popoverClassName),
         };
@@ -172,12 +168,12 @@ export class TimezonePicker extends AbstractPureComponent2<TimezonePickerProps, 
                 disabled={disabled}
                 onQueryChange={this.handleQueryChange}
             >
-                {children != null ? children : this.renderButton()}
+                {children ?? this.renderButton()}
             </TypedSelect>
         );
     }
 
-    public componentDidUpdate(prevProps: TimezonePickerProps, prevState: ITimezonePickerState) {
+    public componentDidUpdate(prevProps: TimezonePickerProps, prevState: TimezonePickerState) {
         super.componentDidUpdate(prevProps, prevState);
         const { date: nextDate = new Date(), inputProps: nextInputProps = {} } = this.props;
 
@@ -189,7 +185,7 @@ export class TimezonePicker extends AbstractPureComponent2<TimezonePickerProps, 
         }
     }
 
-    protected validateProps(props: IPopoverProps & { children?: React.ReactNode }) {
+    protected validateProps(props: TimezonePickerProps & { children?: React.ReactNode }) {
         const childrenCount = React.Children.count(props.children);
         if (childrenCount > 1) {
             console.warn(Errors.TIMEZONE_PICKER_WARN_TOO_MANY_CHILDREN);
@@ -203,7 +199,7 @@ export class TimezonePicker extends AbstractPureComponent2<TimezonePickerProps, 
         ) : (
             <span className={CoreClasses.TEXT_MUTED}>{placeholder}</span>
         );
-        return <Button rightIcon="caret-down" disabled={disabled} text={buttonContent} {...buttonProps} />;
+        return <Button rightIcon={<CaretDown />} disabled={disabled} text={buttonContent} {...buttonProps} />;
     }
 
     private filterItems: ItemListPredicate<TimezoneItem> = (query, items) => {
@@ -230,7 +226,11 @@ export class TimezonePicker extends AbstractPureComponent2<TimezonePickerProps, 
         );
     };
 
-    private handleItemSelect = (timezone: TimezoneItem) => this.props.onChange?.(timezone.timezone);
+    private handleItemSelect = (timezone: TimezoneItem) => {
+        this.props.onChange?.(timezone.timezone);
+    };
 
-    private handleQueryChange = (query: string) => this.setState({ query });
+    private handleQueryChange = (query: string) => {
+        this.setState({ query });
+    };
 }

@@ -15,19 +15,18 @@
  */
 
 import classNames from "classnames";
-import * as React from "react";
+import React from "react";
 import type { DayPickerProps } from "react-day-picker";
-import { polyfill } from "react-lifecycles-compat";
 
 import {
-    AbstractPureComponent2,
+    AbstractPureComponent,
     DISPLAYNAME_PREFIX,
-    InputGroupProps2,
+    InputGroupProps,
     InputGroup,
     Intent,
-    IPopoverProps,
+    PopoverProps,
     Props,
-    IRef,
+    Ref,
     Keys,
     Popover,
     refHandler,
@@ -38,13 +37,10 @@ import * as Classes from "./common/classes";
 import { isDateValid, isDayInRange } from "./common/dateUtils";
 import { getFormattedDateString, DateFormatProps } from "./dateFormat";
 import { DatePicker } from "./datePicker";
-import { getDefaultMaxDate, getDefaultMinDate, IDatePickerBaseProps } from "./datePickerCore";
+import { getDefaultMaxDate, getDefaultMinDate, DatePickerBaseProps } from "./datePickerCore";
 import { DatePickerShortcut } from "./shortcuts";
 
-// eslint-disable-next-line deprecation/deprecation
-export type DateInputProps = IDateInputProps;
-/** @deprecated use DateInputProps */
-export interface IDateInputProps extends IDatePickerBaseProps, DateFormatProps, Props {
+export interface DateInputProps extends DatePickerBaseProps, DateFormatProps, Props {
     /**
      * Allows the user to clear the selection by clicking the currently selected day.
      * Passed to `DatePicker` component.
@@ -90,7 +86,7 @@ export interface IDateInputProps extends IDatePickerBaseProps, DateFormatProps, 
      * `disabled` and `value` will be ignored in favor of the top-level props on this component.
      * `type` is fixed to "text".
      */
-    inputProps?: InputGroupProps2;
+    inputProps?: InputGroupProps;
 
     /**
      * Called when the user selects a new valid date through the `DatePicker` or by typing
@@ -112,7 +108,7 @@ export interface IDateInputProps extends IDatePickerBaseProps, DateFormatProps, 
      * Note that `content`, `autoFocus`, and `enforceFocus` cannot be changed.
      */
     // eslint-disable-next-line @typescript-eslint/ban-types
-    popoverProps?: Partial<IPopoverProps> & object;
+    popoverProps?: Partial<PopoverProps> & object;
 
     /**
      * Element to render on right side of input.
@@ -152,7 +148,7 @@ export interface IDateInputProps extends IDatePickerBaseProps, DateFormatProps, 
     todayButtonText?: string;
 }
 
-export interface IDateInputState {
+export interface DateInputState {
     value: Date;
     valueString: string;
     isInputFocused: boolean;
@@ -160,8 +156,7 @@ export interface IDateInputState {
     selectedShortcutIndex?: number;
 }
 
-@polyfill
-export class DateInput extends AbstractPureComponent2<DateInputProps, IDateInputState> {
+export class DateInput extends AbstractPureComponent<DateInputProps, DateInputState> {
     public static displayName = `${DISPLAYNAME_PREFIX}.DateInput`;
 
     public static defaultProps: Partial<DateInputProps> = {
@@ -175,7 +170,7 @@ export class DateInput extends AbstractPureComponent2<DateInputProps, IDateInput
         reverseMonthAndYearMenus: false,
     };
 
-    public state: IDateInputState = {
+    public state: DateInputState = {
         isInputFocused: false,
         isOpen: false,
         value: this.props.value !== undefined ? this.props.value : this.props.defaultValue,
@@ -196,7 +191,7 @@ export class DateInput extends AbstractPureComponent2<DateInputProps, IDateInput
         this.props.inputProps?.inputRef,
     );
 
-    private handlePopoverContentRef: IRef<HTMLDivElement> = refHandler(this, "popoverContentElement");
+    private handlePopoverContentRef: Ref<HTMLDivElement> = refHandler(this, "popoverContentElement");
 
     public componentWillUnmount() {
         this.unregisterPopoverBlurHandler();
@@ -246,7 +241,6 @@ export class DateInput extends AbstractPureComponent2<DateInputProps, IDateInput
         const { inputProps = {}, popoverProps = {} } = this.props;
         const isErrorState = value != null && (!isDateValid(value) || !this.isDateInRange(value));
         return (
-            /* eslint-disable-next-line deprecation/deprecation */
             <Popover
                 isOpen={this.state.isOpen && !this.props.disabled}
                 fill={this.props.fill}
@@ -274,12 +268,11 @@ export class DateInput extends AbstractPureComponent2<DateInputProps, IDateInput
                     onKeyDown={this.handleInputKeyDown}
                     value={dateString}
                 />
-                {/* eslint-disable-next-line deprecation/deprecation */}
             </Popover>
         );
     }
 
-    public componentDidUpdate(prevProps: DateInputProps, prevState: IDateInputState) {
+    public componentDidUpdate(prevProps: DateInputProps, prevState: DateInputState) {
         super.componentDidUpdate(prevProps, prevState);
 
         if (prevProps.inputProps?.inputRef !== this.props.inputProps?.inputRef) {
@@ -489,7 +482,7 @@ export class DateInput extends AbstractPureComponent2<DateInputProps, IDateInput
     };
 
     /** safe wrapper around invoking input props event handler (prop defaults to undefined) */
-    private safeInvokeInputProp(name: keyof InputGroupProps2, e: React.SyntheticEvent<HTMLElement>) {
+    private safeInvokeInputProp(name: keyof InputGroupProps, e: React.SyntheticEvent<HTMLElement>) {
         const { inputProps = {} } = this.props;
         inputProps[name]?.(e);
     }

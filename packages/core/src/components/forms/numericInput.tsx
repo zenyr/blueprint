@@ -15,20 +15,19 @@
  */
 
 import classNames from "classnames";
-import * as React from "react";
-import { polyfill } from "react-lifecycles-compat";
+import React from "react";
 
-import { IconName } from "@blueprintjs/icons";
+import { IconName, ChevronDown, ChevronUp } from "@blueprintjs/icons";
 
 import {
-    AbstractPureComponent2,
+    AbstractPureComponent,
     Classes,
     DISPLAYNAME_PREFIX,
     HTMLInputProps,
     IntentProps,
     Intent,
     Props,
-    IRef,
+    Ref,
     Keys,
     MaybeElement,
     Position,
@@ -53,10 +52,7 @@ import {
     toMaxPrecision,
 } from "./numericInputUtils";
 
-// eslint-disable-next-line deprecation/deprecation
-export type NumericInputProps = INumericInputProps;
-/** @deprecated use NumericInputProps */
-export interface INumericInputProps extends IntentProps, Props {
+export interface NumericInputProps extends IntentProps, Props {
     /**
      * Whether to allow only floating-point number characters in the field,
      * mimicking the native `input[type="number"]`.
@@ -110,7 +106,7 @@ export interface INumericInputProps extends IntentProps, Props {
     /**
      * Ref handler that receives HTML `<input>` element backing this component.
      */
-    inputRef?: IRef<HTMLInputElement>;
+    inputRef?: Ref<HTMLInputElement>;
 
     /**
      * If set to `true`, the input will display with larger styling.
@@ -198,7 +194,7 @@ export interface INumericInputProps extends IntentProps, Props {
     onValueChange?(valueAsNumber: number, valueAsString: string, inputElement: HTMLInputElement | null): void;
 }
 
-export interface INumericInputState {
+export interface NumericInputState {
     currentImeInputInvalid: boolean;
     prevMinProp?: number;
     prevMaxProp?: number;
@@ -229,8 +225,7 @@ const NON_HTML_PROPS: Array<keyof NumericInputProps> = [
 
 type ButtonEventHandlers = Required<Pick<React.HTMLAttributes<Element>, "onKeyDown" | "onMouseDown">>;
 
-@polyfill
-export class NumericInput extends AbstractPureComponent2<HTMLInputProps & NumericInputProps, INumericInputState> {
+export class NumericInput extends AbstractPureComponent<HTMLInputProps & NumericInputProps, NumericInputState> {
     public static displayName = `${DISPLAYNAME_PREFIX}.NumericInput`;
 
     public static VALUE_EMPTY = "";
@@ -250,7 +245,7 @@ export class NumericInput extends AbstractPureComponent2<HTMLInputProps & Numeri
         stepSize: 1,
     };
 
-    public static getDerivedStateFromProps(props: NumericInputProps, state: INumericInputState) {
+    public static getDerivedStateFromProps(props: NumericInputProps, state: NumericInputState) {
         const nextState = {
             prevMaxProp: props.max,
             prevMinProp: props.min,
@@ -309,7 +304,7 @@ export class NumericInput extends AbstractPureComponent2<HTMLInputProps & Numeri
         return toLocaleString(clampedValue, locale);
     }
 
-    public state: INumericInputState = {
+    public state: NumericInputState = {
         currentImeInputInvalid: false,
         shouldSelectAfterUpdate: false,
         stepMaxPrecision: NumericInput.getStepMaxPrecision(this.props),
@@ -323,7 +318,7 @@ export class NumericInput extends AbstractPureComponent2<HTMLInputProps & Numeri
 
     public inputElement: HTMLInputElement | null = null;
 
-    private inputRef: IRef<HTMLInputElement> = refHandler(this, "inputElement", this.props.inputRef);
+    private inputRef: Ref<HTMLInputElement> = refHandler(this, "inputElement", this.props.inputRef);
 
     private intervalId?: number;
 
@@ -344,7 +339,7 @@ export class NumericInput extends AbstractPureComponent2<HTMLInputProps & Numeri
         );
     }
 
-    public componentDidUpdate(prevProps: NumericInputProps, prevState: INumericInputState) {
+    public componentDidUpdate(prevProps: NumericInputProps, prevState: NumericInputState) {
         super.componentDidUpdate(prevProps, prevState);
 
         if (prevProps.inputRef !== this.props.inputRef) {
@@ -433,14 +428,14 @@ export class NumericInput extends AbstractPureComponent2<HTMLInputProps & Numeri
                 <Button
                     aria-label="increment"
                     disabled={disabled || isIncrementDisabled}
-                    icon="chevron-up"
+                    icon={<ChevronUp />}
                     intent={intent}
                     {...this.incrementButtonHandlers}
                 />
                 <Button
                     aria-label="decrement"
                     disabled={disabled || isDecrementDisabled}
-                    icon="chevron-down"
+                    icon={<ChevronDown />}
                     intent={intent}
                     {...this.decrementButtonHandlers}
                 />

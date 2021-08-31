@@ -20,4 +20,4 @@
  *
  * @deprecated will be removed in Blueprint v4.0
  */
-export type IConstructor<T> = new (...args: any[]) => T;
+export type Constructor<T> = new (...args: any[]) => T;

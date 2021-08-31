@@ -15,22 +15,20 @@
  */
 
 import classNames from "classnames";
-import * as React from "react";
-import { polyfill } from "react-lifecycles-compat";
+import React from "react";
 
-import { AbstractPureComponent2, Classes } from "../../common";
+import { SmallCross, IconName, IconSize } from "@blueprintjs/icons";
+
+import { AbstractPureComponent, Classes } from "../../common";
 import * as Errors from "../../common/errors";
 import { DISPLAYNAME_PREFIX, Props, MaybeElement } from "../../common/props";
 import { uniqueId } from "../../common/utils";
 import { Button } from "../button/buttons";
 import { H4 } from "../html/html";
-import { Icon, IconName, IconSize } from "../icon/icon";
-import { IBackdropProps, OverlayableProps, Overlay } from "../overlay/overlay";
+import { Icon } from "../icon/icon";
+import { BackdropProps, OverlayableProps, Overlay } from "../overlay/overlay";
 
-// eslint-disable-next-line deprecation/deprecation
-export type DialogProps = IDialogProps;
-/** @deprecated use DialogProps */
-export interface IDialogProps extends OverlayableProps, IBackdropProps, Props {
+export interface DialogProps extends OverlayableProps, BackdropProps, Props {
     /**
      * Toggles the visibility of the overlay and its children.
      * This prop is required because the component is controlled.
@@ -92,8 +90,7 @@ export interface IDialogProps extends OverlayableProps, IBackdropProps, Props {
     "aria-describedby"?: string;
 }
 
-@polyfill
-export class Dialog extends AbstractPureComponent2<DialogProps> {
+export class Dialog extends AbstractPureComponent<DialogProps> {
     public static defaultProps: DialogProps = {
         canOutsideClickClose: true,
         isOpen: false,
@@ -148,7 +145,7 @@ export class Dialog extends AbstractPureComponent2<DialogProps> {
                 <Button
                     aria-label="Close"
                     className={Classes.DIALOG_CLOSE_BUTTON}
-                    icon={<Icon icon="small-cross" size={IconSize.LARGE} />}
+                    icon={<SmallCross size={IconSize.LARGE} />}
                     minimal={true}
                     onClick={this.props.onClose}
                 />

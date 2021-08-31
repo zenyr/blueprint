@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import * as React from "react";
+import React from "react";
 
 import {
     H5,
@@ -32,7 +32,7 @@ import {
     handleNumberChange,
     handleStringChange,
     handleValueChange,
-    IExampleProps,
+    ExampleProps,
 } from "@blueprintjs/docs-theme";
 
 import { IntentSelect } from "./common/intentSelect";
@@ -58,7 +58,7 @@ const BUTTON_POSITIONS = [
     { label: "Right", value: Position.RIGHT },
 ];
 
-export class NumericInputBasicExample extends React.PureComponent<IExampleProps, NumericInputProps> {
+export class NumericInputBasicExample extends React.PureComponent<ExampleProps, NumericInputProps> {
     public state: NumericInputProps = {
         allowNumericCharactersOnly: true,
         buttonPosition: "right",

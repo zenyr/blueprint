@@ -15,12 +15,9 @@
  */
 
 import { isDateValid, isDayInRange } from "./common/dateUtils";
-import { IDatePickerBaseProps } from "./datePickerCore";
+import { DatePickerBaseProps } from "./datePickerCore";
 
-// eslint-disable-next-line deprecation/deprecation
-export type DateFormatProps = IDateFormatProps;
-/** @deprecated use DateFormatProps */
-export interface IDateFormatProps {
+export interface DateFormatProps {
     /**
      * The error message to display when the date selected is invalid.
      *
@@ -64,7 +61,7 @@ export interface IDateFormatProps {
 
 export function getFormattedDateString(
     date: Date | false | null,
-    props: DateFormatProps & IDatePickerBaseProps,
+    props: DateFormatProps & DatePickerBaseProps,
     ignoreRange = false,
 ) {
     if (date == null) {

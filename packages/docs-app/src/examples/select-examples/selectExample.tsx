@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-import * as React from "react";
+import React from "react";
 
 import { H5, MenuItem, Switch } from "@blueprintjs/core";
-import { Example, IExampleProps } from "@blueprintjs/docs-theme";
+import { Example, ExampleProps } from "@blueprintjs/docs-theme";
 
-import { IFilm, TOP_100_FILMS } from "../../common/films";
+import { Film, TOP_100_FILMS } from "../../common/films";
 import FilmSelect from "../../common/filmSelect";
 
-export interface ISelectExampleState {
+export interface SelectExampleState {
     allowCreate: boolean;
     createFirst: boolean;
-    createdItems: IFilm[];
+    createdItems: Film[];
     fill: boolean;
     filterable: boolean;
     hasInitialContent: boolean;
@@ -38,8 +38,8 @@ export interface ISelectExampleState {
     matchTargetWidth: false;
 }
 
-export class SelectExample extends React.PureComponent<IExampleProps, ISelectExampleState> {
-    public state: ISelectExampleState = {
+export class SelectExample extends React.PureComponent<ExampleProps, SelectExampleState> {
+    public state: SelectExampleState = {
         allowCreate: false,
         createFirst: false,
         createdItems: [],
@@ -159,12 +159,12 @@ export class SelectExample extends React.PureComponent<IExampleProps, ISelectExa
         );
     }
 
-    private handleSwitchChange(prop: keyof ISelectExampleState) {
+    private handleSwitchChange(prop: keyof SelectExampleState) {
         return (event: React.FormEvent<HTMLInputElement>) => {
             const checked = event.currentTarget.checked;
             this.setState(state => ({ ...state, [prop]: checked }));
         };
     }
 
-    private isItemDisabled = (film: IFilm) => this.state.disableItems && film.year < 2000;
+    private isItemDisabled = (film: Film) => this.state.disableItems && film.year < 2000;
 }

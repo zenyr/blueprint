@@ -14,19 +14,15 @@
  * limitations under the License.
  */
 
-import * as React from "react";
-import { polyfill } from "react-lifecycles-compat";
+import React from "react";
 
-import { AbstractPureComponent2, Classes } from "../../common";
+import { AbstractPureComponent, Classes } from "../../common";
 import * as Errors from "../../common/errors";
 import { DISPLAYNAME_PREFIX, OptionProps, Props } from "../../common/props";
 import { isElementOfType } from "../../common/utils";
 import { RadioProps, Radio } from "./controls";
 
-// eslint-disable-next-line deprecation/deprecation
-export type RadioGroupProps = IRadioGroupProps;
-/** @deprecated use RadioGroupProps */
-export interface IRadioGroupProps extends Props {
+export interface RadioGroupProps extends Props {
     /**
      * Whether the group and _all_ its radios are disabled.
      * Individual radios can be disabled using their `disabled` prop.
@@ -70,8 +66,7 @@ function nextName() {
     return `${RadioGroup.displayName}-${counter++}`;
 }
 
-@polyfill
-export class RadioGroup extends AbstractPureComponent2<RadioGroupProps> {
+export class RadioGroup extends AbstractPureComponent<RadioGroupProps> {
     public static displayName = `${DISPLAYNAME_PREFIX}.RadioGroup`;
 
     // a unique name for this group, which can be overridden by `name` prop.

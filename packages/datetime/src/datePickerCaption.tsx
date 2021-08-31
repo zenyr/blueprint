@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-import * as React from "react";
+import React from "react";
 import { CaptionElementProps } from "react-day-picker";
-import { polyfill } from "react-lifecycles-compat";
 
-import { AbstractPureComponent2, Divider, HTMLSelect, IconSize, OptionProps } from "@blueprintjs/core";
+import { AbstractPureComponent, Divider, HTMLSelect, OptionProps } from "@blueprintjs/core";
+import { IconSize } from "@blueprintjs/icons";
 
 import * as Classes from "./common/classes";
 import { clone } from "./common/dateUtils";
 import { measureTextWidth } from "./common/utils";
 
-export interface IDatePickerCaptionProps extends CaptionElementProps {
+export interface DatePickerCaptionProps extends CaptionElementProps {
     maxDate: Date;
     minDate: Date;
     onMonthChange?: (month: number) => void;
@@ -34,13 +34,12 @@ export interface IDatePickerCaptionProps extends CaptionElementProps {
     reverseMonthAndYearMenus?: boolean;
 }
 
-export interface IDatePickerCaptionState {
+export interface DatePickerCaptionState {
     monthRightOffset: number;
 }
 
-@polyfill
-export class DatePickerCaption extends AbstractPureComponent2<IDatePickerCaptionProps, IDatePickerCaptionState> {
-    public state: IDatePickerCaptionState = { monthRightOffset: 0 };
+export class DatePickerCaption extends AbstractPureComponent<DatePickerCaptionProps, DatePickerCaptionState> {
+    public state: DatePickerCaptionState = { monthRightOffset: 0 };
 
     private containerElement: HTMLElement;
 

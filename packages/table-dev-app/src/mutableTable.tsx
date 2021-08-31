@@ -17,7 +17,7 @@
 /* eslint-disable react/jsx-no-bind */
 
 import classNames from "classnames";
-import * as React from "react";
+import React from "react";
 
 import {
     Button,
@@ -37,7 +37,7 @@ import {
     Cell,
     Column,
     ColumnHeaderCell,
-    EditableCell2,
+    EditableCell,
     EditableName,
     StyledRegionGroup,
     JSONFormat,
@@ -45,14 +45,14 @@ import {
     RegionCardinality,
     Regions,
     RowHeaderCell,
-    Table2,
+    Table,
     TableLoadingOption,
     TruncatedFormat,
     TruncatedPopoverMode,
     Utils,
 } from "@blueprintjs/table";
-import { IFocusedCellCoordinates } from "@blueprintjs/table/src/common/cell";
-import { IColumnIndices, IRowIndices } from "@blueprintjs/table/src/common/grid";
+import { FocusedCellCoordinates } from "@blueprintjs/table/src/common/cell";
+import { ColumnIndices, RowIndices } from "@blueprintjs/table/src/common/grid";
 import { RenderMode } from "@blueprintjs/table/src/common/renderMode";
 
 import { DenseGridMutableStore } from "./denseGridMutableStore";
@@ -77,9 +77,7 @@ export enum SelectedRegionTransformPreset {
     COLUMN = "column",
 }
 
-type IMutableStateUpdateCallback = (
-    stateKey: keyof IMutableTableState,
-) => (event: React.FormEvent<HTMLElement>) => void;
+type MutableStateUpdateCallback = (stateKey: keyof MutableTableState) => (event: React.FormEvent<HTMLElement>) => void;
 
 const COLUMN_COUNTS = [0, 1, 5, 20, 100, 1000];
 const ROW_COUNTS = [0, 1, 5, 20, 100, 1000, 100000];
@@ -216,7 +214,7 @@ function enforceWholeRowSelection(region: Region) {
     return region;
 }
 
-export interface IMutableTableState {
+export interface MutableTableState {
     cellContent?: CellContent;
     cellTruncatedPopoverMode?: TruncatedPopoverMode;
     cellTruncationLength?: number;
@@ -263,7 +261,7 @@ export interface IMutableTableState {
     showZebraStriping?: boolean;
 }
 
-const DEFAULT_STATE: IMutableTableState = {
+const DEFAULT_STATE: MutableTableState = {
     cellContent: CellContent.LONG_TEXT,
     cellTruncatedPopoverMode: TruncatedPopoverMode.WHEN_TRUNCATED,
     cellTruncationLength: TRUNCATION_LENGTHS[TRUNCATION_LENGTH_DEFAULT_INDEX],
@@ -311,20 +309,20 @@ const DEFAULT_STATE: IMutableTableState = {
 };
 
 // eslint-disable-next-line @typescript-eslint/ban-types
-export class MutableTable extends React.Component<{}, IMutableTableState> {
+export class MutableTable extends React.Component<{}, MutableTableState> {
     private store = new DenseGridMutableStore<any>();
 
-    private tableInstance: Table2;
+    private tableInstance: Table;
 
-    private stateStore: LocalStore<IMutableTableState>;
+    private stateStore: LocalStore<MutableTableState>;
 
     private refHandlers = {
-        table: (ref: Table2) => (this.tableInstance = ref),
+        table: (ref: Table) => (this.tableInstance = ref),
     };
 
-    public constructor(props: any, context?: any) {
-        super(props, context);
-        this.stateStore = new LocalStore<IMutableTableState>("BP_TABLE_MUTABLE_TABLE_DEV_PREVIEW", true);
+    public constructor(props: any) {
+        super(props);
+        this.stateStore = new LocalStore<MutableTableState>("BP_TABLE_MUTABLE_TABLE_DEV_PREVIEW", true);
         this.state = this.stateStore.getWithDefaults(DEFAULT_STATE);
     }
 
@@ -359,7 +357,7 @@ export class MutableTable extends React.Component<{}, IMutableTableState> {
     }
 
     // eslint-disable-next-line @typescript-eslint/ban-types
-    public componentWillUpdate(_nextProps: {}, nextState: IMutableTableState) {
+    public componentWillUpdate(_nextProps: {}, nextState: MutableTableState) {
         if (
             nextState.cellContent !== this.state.cellContent ||
             nextState.numRows !== this.state.numRows ||
@@ -387,8 +385,9 @@ export class MutableTable extends React.Component<{}, IMutableTableState> {
 
     private renderTable() {
         return (
-            <Table2
+            <Table
                 bodyContextMenuRenderer={this.renderBodyContextMenu}
+                enableBodyContextMenu={this.state.enableContextMenu}
                 enableColumnInteractionBar={this.state.showTableInteractionBar}
                 enableColumnReordering={this.state.enableColumnReordering}
                 enableColumnResizing={this.state.enableColumnResizing}
@@ -421,7 +420,7 @@ export class MutableTable extends React.Component<{}, IMutableTableState> {
                 styledRegionGroups={this.getStyledRegionGroups()}
             >
                 {this.renderColumns()}
-            </Table2>
+            </Table>
         );
     }
 
@@ -561,7 +560,7 @@ export class MutableTable extends React.Component<{}, IMutableTableState> {
 
         if (this.state.enableCellEditing) {
             return (
-                <EditableCell2
+                <EditableCell
                     className={classes}
                     columnIndex={columnIndex}
                     loading={this.state.showCellsLoading}
@@ -790,8 +789,8 @@ export class MutableTable extends React.Component<{}, IMutableTableState> {
 
     private renderSwitch(
         label: string,
-        stateKey: keyof IMutableTableState,
-        prereqStateKey?: keyof IMutableTableState,
+        stateKey: keyof MutableTableState,
+        prereqStateKey?: keyof MutableTableState,
         prereqStateKeyValue?: any,
     ) {
         const isDisabled = !this.isPrereqStateKeySatisfied(prereqStateKey, prereqStateKeyValue);
@@ -813,17 +812,17 @@ export class MutableTable extends React.Component<{}, IMutableTableState> {
         }
     }
 
-    private renderNumberSelectMenu(label: string, stateKey: keyof IMutableTableState, values: number[]) {
+    private renderNumberSelectMenu(label: string, stateKey: keyof MutableTableState, values: number[]) {
         return this.renderSelectMenu(label, stateKey, values, toValueLabel, this.handleNumberStateChange);
     }
 
     private renderSelectMenu<T>(
         label: string,
-        stateKey: keyof IMutableTableState,
+        stateKey: keyof MutableTableState,
         values: T[],
         generateValueLabel: (value: any) => string,
-        handleChange: IMutableStateUpdateCallback,
-        prereqStateKey?: keyof IMutableTableState,
+        handleChange: MutableStateUpdateCallback,
+        prereqStateKey?: keyof MutableTableState,
         prereqStateKeyValue?: any,
     ) {
         const isDisabled = !this.isPrereqStateKeySatisfied(prereqStateKey, prereqStateKeyValue);
@@ -861,13 +860,13 @@ export class MutableTable extends React.Component<{}, IMutableTableState> {
     // Disabled control helpers
     // ========================
 
-    private isPrereqStateKeySatisfied(key?: keyof IMutableTableState, value?: any) {
+    private isPrereqStateKeySatisfied(key?: keyof MutableTableState, value?: any) {
         return key == null || this.state[key] === value;
     }
 
     private wrapDisabledControlWithTooltip(
         element: JSX.Element,
-        prereqStateKey: keyof IMutableTableState,
+        prereqStateKey: keyof MutableTableState,
         prereqStateKeyValue: any,
     ) {
         // Blueprint Tooltip affects the layout, so just show a native title on hover
@@ -906,7 +905,7 @@ export class MutableTable extends React.Component<{}, IMutableTableState> {
         this.maybeLogCallback(`[onRowHeightChanged] index = ${index} size = ${size}`);
     };
 
-    private onFocus = (focusedCell: IFocusedCellCoordinates) => {
+    private onFocus = (focusedCell: FocusedCellCoordinates) => {
         this.maybeLogCallback("[onFocusedCell] focusedCell =", focusedCell);
     };
 
@@ -914,7 +913,7 @@ export class MutableTable extends React.Component<{}, IMutableTableState> {
         this.maybeLogCallback(`[onCopy] success = ${success}`);
     };
 
-    private onVisibleCellsChange = (rowIndices: IRowIndices, columnIndices: IColumnIndices) => {
+    private onVisibleCellsChange = (rowIndices: RowIndices, columnIndices: ColumnIndices) => {
         const { rowIndexStart, rowIndexEnd } = rowIndices;
         const { columnIndexStart, columnIndexEnd } = columnIndices;
         this.maybeLogCallback(
@@ -1017,20 +1016,20 @@ export class MutableTable extends React.Component<{}, IMutableTableState> {
         }
     };
 
-    private handleBooleanStateChange = (stateKey: keyof IMutableTableState) => {
+    private handleBooleanStateChange = (stateKey: keyof MutableTableState) => {
         return handleBooleanChange(value => this.setState({ [stateKey]: value }));
     };
 
-    private handleNumberStateChange = (stateKey: keyof IMutableTableState) => {
+    private handleNumberStateChange = (stateKey: keyof MutableTableState) => {
         return handleNumberChange(value => this.setState({ [stateKey]: value }));
     };
 
-    private handleStringStateChange = (stateKey: keyof IMutableTableState) => {
+    private handleStringStateChange = (stateKey: keyof MutableTableState) => {
         return handleStringChange(value => this.setState({ [stateKey]: value }));
     };
 
     private renderBodyContextMenu = () => {
-        const menu = (
+        return (
             <Menu>
                 <MenuItem icon="search-around" text="Item 1" />
                 <MenuItem icon="search" text="Item 2" />
@@ -1040,7 +1039,6 @@ export class MutableTable extends React.Component<{}, IMutableTableState> {
                 <MenuItem disabled={true} text="Disabled item" />
             </Menu>
         );
-        return this.state.enableContextMenu ? menu : undefined;
     };
 
     private getEnabledSelectionModes() {

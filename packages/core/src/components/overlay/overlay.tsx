@@ -15,22 +15,15 @@
  */
 
 import classNames from "classnames";
-import * as React from "react";
-import { findDOMNode } from "react-dom";
-import { polyfill } from "react-lifecycles-compat";
+import React, { cloneElement, createRef } from "react";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
-// tslint:disable-next-line no-submodule-imports
-import { CSSTransitionProps } from "react-transition-group/CSSTransition";
 
-import { AbstractPureComponent2, Classes, Keys } from "../../common";
+import { AbstractPureComponent, Classes, Keys } from "../../common";
 import { DISPLAYNAME_PREFIX, Props } from "../../common/props";
-import { isFunction, LifecycleCompatPolyfill } from "../../common/utils";
+import { isFunction } from "../../common/utils";
 import { Portal } from "../portal/portal";
 
-// eslint-disable-next-line deprecation/deprecation
-export type OverlayableProps = IOverlayableProps;
-/** @deprecated use OverlayableProps */
-export interface IOverlayableProps extends IOverlayLifecycleProps {
+export interface OverlayableProps extends OverlayLifecycleProps {
     /**
      * Whether the overlay should acquire application focus when it first opens.
      *
@@ -115,8 +108,7 @@ export interface IOverlayableProps extends IOverlayLifecycleProps {
     onClose?: (event: React.SyntheticEvent<HTMLElement>) => void;
 }
 
-export type OverlayLifecycleProps = IOverlayLifecycleProps;
-export interface IOverlayLifecycleProps {
+export interface OverlayLifecycleProps {
     /**
      * Lifecycle method invoked just before the CSS _close_ transition begins on
      * a child. Receives the DOM element of the child being closed.
@@ -144,8 +136,7 @@ export interface IOverlayLifecycleProps {
     onOpened?: (node: HTMLElement) => void;
 }
 
-export type BackdropProps = IBackdropProps;
-export interface IBackdropProps {
+export interface BackdropProps {
     /** CSS class names to apply to backdrop element. */
     backdropClassName?: string;
 
@@ -168,10 +159,7 @@ export interface IBackdropProps {
     hasBackdrop?: boolean;
 }
 
-// eslint-disable-next-line deprecation/deprecation
-export type OverlayProps = IOverlayProps;
-/** @deprecated use OverlayProps */
-export interface IOverlayProps extends OverlayableProps, IBackdropProps, Props {
+export interface OverlayProps extends OverlayableProps, BackdropProps, Props {
     /**
      * Toggles the visibility of the overlay and its children.
      * This prop is required because the component is controlled.
@@ -187,14 +175,11 @@ export interface IOverlayProps extends OverlayableProps, IBackdropProps, Props {
     transitionName?: string;
 }
 
-export interface IOverlayState {
+export interface OverlayState {
     hasEverOpened?: boolean;
 }
 
-// HACKHACK: https://github.com/palantir/blueprint/issues/4342
-// eslint-disable-next-line deprecation/deprecation
-@(polyfill as LifecycleCompatPolyfill<OverlayProps, any>)
-export class Overlay extends AbstractPureComponent2<OverlayProps, IOverlayState> {
+export class Overlay extends AbstractPureComponent<OverlayProps, OverlayState> {
     public static displayName = `${DISPLAYNAME_PREFIX}.Overlay`;
 
     public static defaultProps: OverlayProps = {
@@ -222,18 +207,12 @@ export class Overlay extends AbstractPureComponent2<OverlayProps, IOverlayState>
 
     private static getLastOpened = () => Overlay.openStack[Overlay.openStack.length - 1];
 
-    public state: IOverlayState = {
+    public state: OverlayState = {
         hasEverOpened: this.props.isOpen,
     };
 
-    // an HTMLElement that contains the backdrop and any children, to query for focus target
-    public containerElement: HTMLElement | null = null;
-
-    private refHandlers = {
-        // HACKHACK: see https://github.com/palantir/blueprint/issues/3979
-        /* eslint-disable-next-line react/no-find-dom-node */
-        container: (ref: TransitionGroup) => (this.containerElement = findDOMNode(ref) as HTMLElement),
-    };
+    /** Ref for container element, containing all children and the backdrop */
+    public containerElement = createRef<HTMLDivElement>();
 
     public render() {
         // oh snap! no reason to render anything at all if we're being truly lazy
@@ -263,15 +242,11 @@ export class Overlay extends AbstractPureComponent2<OverlayProps, IOverlayState>
         );
 
         const transitionGroup = (
-            <TransitionGroup
-                appear={true}
-                className={containerClasses}
-                component="div"
-                onKeyDown={this.handleKeyDown}
-                ref={this.refHandlers.container}
-            >
-                {childrenWithTransitions}
-            </TransitionGroup>
+            <div className={containerClasses} onKeyDown={this.handleKeyDown} ref={this.containerElement}>
+                <TransitionGroup appear={true} component={null}>
+                    {childrenWithTransitions}
+                </TransitionGroup>
+            </div>
         );
         if (usePortal) {
             return (
@@ -309,17 +284,18 @@ export class Overlay extends AbstractPureComponent2<OverlayProps, IOverlayState>
     public bringFocusInsideOverlay() {
         // always delay focus manipulation to just before repaint to prevent scroll jumping
         return this.requestAnimationFrame(() => {
-            // container ref may be undefined between component mounting and Portal rendering
+            // container element may be undefined between component mounting and Portal rendering
             // activeElement may be undefined in some rare cases in IE
-            if (this.containerElement == null || document.activeElement == null || !this.props.isOpen) {
+            if (this.containerElement.current == null || document.activeElement == null || !this.props.isOpen) {
                 return;
             }
 
-            const isFocusOutsideModal = !this.containerElement.contains(document.activeElement);
+            const container = this.containerElement.current;
+            const isFocusOutsideModal = !container.contains(document.activeElement);
             if (isFocusOutsideModal) {
-                // element marked autofocus has higher priority than the other clowns
-                const autofocusElement = this.containerElement.querySelector("[autofocus]") as HTMLElement;
-                const wrapperElement = this.containerElement.querySelector("[tabindex]") as HTMLElement;
+                // element marked autofocus has higher priority than other attributes
+                const autofocusElement = container.querySelector<HTMLElement>("[autofocus]");
+                const wrapperElement = container.querySelector<HTMLElement>("[tabindex]");
                 if (autofocusElement != null) {
                     autofocusElement.focus();
                 } else if (wrapperElement != null) {
@@ -338,28 +314,24 @@ export class Overlay extends AbstractPureComponent2<OverlayProps, IOverlayState>
             return null;
         }
 
-        // add a special class to each child element that will automatically set the appropriate
-        // CSS position mode under the hood. also, make the container focusable so we can
-        // trap focus inside it (via `enforceFocus`).
+        // decorate the child with a few injected props
+        const tabIndex = this.props.enforceFocus || this.props.autoFocus ? 0 : undefined;
         const decoratedChild =
             typeof child === "object" ? (
-                React.cloneElement(child as React.ReactElement, {
+                cloneElement(child as React.ReactElement, {
                     className: classNames((child as React.ReactElement).props.className, Classes.OVERLAY_CONTENT),
-                    tabIndex: this.props.enforceFocus || this.props.autoFocus ? 0 : undefined,
+                    tabIndex,
                 })
             ) : (
-                <span className={Classes.OVERLAY_CONTENT}>{child}</span>
+                <span className={Classes.OVERLAY_CONTENT} tabIndex={tabIndex}>
+                    {child}
+                </span>
             );
+
         const { onOpening, onOpened, onClosing, onClosed, transitionDuration, transitionName } = this.props;
 
-        // a breaking change in react-transition-group types requires us to be explicit about the type overload here,
-        // using a technique similar to Select.ofType() in @blueprintjs/select
-        const CSSTransitionImplicit = CSSTransition as new (
-            props: CSSTransitionProps<undefined>,
-        ) => CSSTransition<undefined>;
-
         return (
-            <CSSTransitionImplicit
+            <CSSTransition
                 classNames={transitionName}
                 onEntering={onOpening}
                 onEntered={onOpened}
@@ -369,7 +341,7 @@ export class Overlay extends AbstractPureComponent2<OverlayProps, IOverlayState>
                 addEndListener={this.handleTransitionAddEnd}
             >
                 {decoratedChild}
-            </CSSTransitionImplicit>
+            </CSSTransition>
         );
     };
 
@@ -377,6 +349,7 @@ export class Overlay extends AbstractPureComponent2<OverlayProps, IOverlayState>
         const {
             backdropClassName,
             backdropProps,
+            canOutsideClickClose,
             hasBackdrop,
             isOpen,
             transitionDuration,
@@ -395,7 +368,7 @@ export class Overlay extends AbstractPureComponent2<OverlayProps, IOverlayState>
                         {...backdropProps}
                         className={classNames(Classes.OVERLAY_BACKDROP, backdropClassName, backdropProps?.className)}
                         onMouseDown={this.handleBackdropMouseDown}
-                        tabIndex={this.props.canOutsideClickClose ? 0 : undefined}
+                        tabIndex={canOutsideClickClose ? 0 : undefined}
                     />
                 </CSSTransition>
             );
@@ -463,16 +436,17 @@ export class Overlay extends AbstractPureComponent2<OverlayProps, IOverlayState>
 
     private handleDocumentClick = (e: MouseEvent) => {
         const { canOutsideClickClose, isOpen, onClose } = this.props;
-        // get the actually target even if we are in an open mode Shadow DOM
+        // get the actual target even if we are in a Shadow DOM
+        // see https://github.com/palantir/blueprint/issues/4220
         const eventTarget = (e.composed ? e.composedPath()[0] : e.target) as HTMLElement;
 
         const stackIndex = Overlay.openStack.indexOf(this);
         const isClickInThisOverlayOrDescendant = Overlay.openStack
             .slice(stackIndex)
             .some(({ containerElement: elem }) => {
-                // `elem` is the container of backdrop & content, so clicking on that container
+                // `elem` is the container of backdrop & content, so clicking directly on that container
                 // should not count as being "inside" the overlay.
-                return elem && elem.contains(eventTarget) && !elem.isSameNode(eventTarget);
+                return elem.current?.contains(eventTarget) && !elem.current.isSameNode(eventTarget);
             });
 
         if (isOpen && canOutsideClickClose && !isClickInThisOverlayOrDescendant) {
@@ -482,13 +456,14 @@ export class Overlay extends AbstractPureComponent2<OverlayProps, IOverlayState>
     };
 
     private handleDocumentFocus = (e: FocusEvent) => {
-        // get the actually target even if we are in an open mode Shadow DOM
+        // get the actual target even if we are in a Shadow DOM
+        // see https://github.com/palantir/blueprint/issues/4220
         const eventTarget = e.composed ? e.composedPath()[0] : e.target;
         if (
             this.props.enforceFocus &&
-            this.containerElement != null &&
+            this.containerElement.current != null &&
             eventTarget instanceof Node &&
-            !this.containerElement.contains(eventTarget as HTMLElement)
+            !this.containerElement.current.contains(eventTarget as HTMLElement)
         ) {
             // prevent default focus behavior (sometimes auto-scrolls the page)
             e.preventDefault();

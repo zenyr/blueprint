@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-import * as React from "react";
+import React from "react";
 
-import { H5, Icon, IconSize, Intent, Label, Slider } from "@blueprintjs/core";
-import { Example, handleValueChange, IExampleProps } from "@blueprintjs/docs-theme";
-import { IconName } from "@blueprintjs/icons";
+import { H5, Icon, Intent, Label, Slider } from "@blueprintjs/core";
+import { Example, handleValueChange, ExampleProps } from "@blueprintjs/docs-theme";
+import { IconName, IconSize } from "@blueprintjs/icons";
 
 import { IconSelect } from "./common/iconSelect";
 import { IntentSelect } from "./common/intentSelect";
 
-export interface IIconExampleState {
+export interface IconExampleState {
     icon: IconName;
     iconSize: number;
     intent: Intent;
 }
 
-export class IconExample extends React.PureComponent<IExampleProps, IIconExampleState> {
-    public state: IIconExampleState = {
+export class IconExample extends React.PureComponent<ExampleProps, IconExampleState> {
+    public state: IconExampleState = {
         icon: "calendar",
         iconSize: IconSize.STANDARD,
         intent: Intent.NONE,

@@ -15,16 +15,13 @@
  */
 
 import classNames from "classnames";
-import * as React from "react";
+import React from "react";
 
 import * as Classes from "../../common/classes";
 import { DISPLAYNAME_PREFIX, Props } from "../../common/props";
 import { H6 } from "../html/html";
 
-// eslint-disable-next-line deprecation/deprecation
-export type MenuDividerProps = IMenuDividerProps;
-/** @deprecated use MenuDividerProps */
-export interface IMenuDividerProps extends Props {
+export interface MenuDividerProps extends Props {
     /** This component does not support children. */
     children?: never;
 

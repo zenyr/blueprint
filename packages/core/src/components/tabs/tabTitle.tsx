@@ -15,17 +15,13 @@
  */
 
 import classNames from "classnames";
-import * as React from "react";
-import { polyfill } from "react-lifecycles-compat";
+import React from "react";
 
-import { AbstractPureComponent2, Classes } from "../../common";
+import { AbstractPureComponent, Classes } from "../../common";
 import { DISPLAYNAME_PREFIX, removeNonHTMLProps } from "../../common/props";
 import { TabProps, TabId } from "./tab";
 
-// eslint-disable-next-line deprecation/deprecation
-export type TabTitleProps = ITabTitleProps;
-/** @deprecated use TabTitleProps */
-export interface ITabTitleProps extends TabProps {
+export interface TabTitleProps extends TabProps {
     /** Handler invoked when this tab is clicked. */
     onClick: (id: TabId, event: React.MouseEvent<HTMLElement>) => void;
 
@@ -36,8 +32,7 @@ export interface ITabTitleProps extends TabProps {
     selected: boolean;
 }
 
-@polyfill
-export class TabTitle extends AbstractPureComponent2<TabTitleProps> {
+export class TabTitle extends AbstractPureComponent<TabTitleProps> {
     public static displayName = `${DISPLAYNAME_PREFIX}.TabTitle`;
 
     public render() {

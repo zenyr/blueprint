@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import * as React from "react";
+import React from "react";
 
 import { Card, H4, Icon, IconName } from "@blueprintjs/core";
 
@@ -45,7 +45,7 @@ const WelcomeCard: React.FunctionComponent<{
     href: string;
     sameTab?: boolean;
 }> = props => (
-    <a className="blueprint-welcome-card" href={props.href} target={props.sameTab ? "" : "_blank"}>
+    <a href={props.href} target={props.sameTab ? "" : "_blank"}>
         <Card interactive={true}>
             <Icon icon={props.icon} size={40} />
             <H4>{props.title}</H4>

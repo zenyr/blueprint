@@ -14,19 +14,26 @@
  * limitations under the License.
  */
 
-import * as React from "react";
+import React from "react";
 
-import { Example, IExampleProps } from "@blueprintjs/docs-theme";
-import { Cell, Column, Table2 } from "@blueprintjs/table";
+import { Example, ExampleProps } from "@blueprintjs/docs-theme";
+import { Cell, Column, Table } from "@blueprintjs/table";
 
-export class TableDollarExample extends React.PureComponent<IExampleProps> {
+// this will obviously get outdated, it's valid only as of August 2021
+const USD_TO_EURO_CONVERSION = 0.85;
+
+export class TableDollarExample extends React.PureComponent<ExampleProps> {
     public render() {
-        const cellRenderer = (rowIndex: number) => <Cell>{`$${(rowIndex * 10).toFixed(2)}`}</Cell>;
+        const dollarCellRenderer = (rowIndex: number) => <Cell>{`$${(rowIndex * 10).toFixed(2)}`}</Cell>;
+        const euroCellRenderer = (rowIndex: number) => (
+            <Cell>{`€${(rowIndex * 10 * USD_TO_EURO_CONVERSION).toFixed(2)}`}</Cell>
+        );
         return (
             <Example options={false} showOptionsBelowExample={true} {...this.props}>
-                <Table2 numRows={10}>
-                    <Column name="Dollars" cellRenderer={cellRenderer} />
-                </Table2>
+                <Table numRows={20}>
+                    <Column name="Dollars" cellRenderer={dollarCellRenderer} />
+                    <Column name="Euros" cellRenderer={euroCellRenderer} />
+                </Table>
             </Example>
         );
     }

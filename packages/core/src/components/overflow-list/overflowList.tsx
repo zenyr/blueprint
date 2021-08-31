@@ -15,7 +15,7 @@
  */
 
 import classNames from "classnames";
-import * as React from "react";
+import React from "react";
 
 import { Boundary } from "../../common/boundary";
 import * as Classes from "../../common/classes";
@@ -32,10 +32,7 @@ export enum OverflowDirection {
     SHRINK,
 }
 
-// eslint-disable-next-line deprecation/deprecation
-export type OverflowListProps<T> = IOverflowListProps<T>;
-/** @deprecated use OverflowListProps */
-export interface IOverflowListProps<T> extends Props {
+export interface OverflowListProps<T> extends Props {
     /**
      * Whether to force the overflowRenderer to always be called, even if there are zero items
      * overflowing. This may be useful, for example, if your overflow renderer contains a Popover
@@ -115,7 +112,7 @@ export interface IOverflowListProps<T> extends Props {
     visibleItemRenderer: (item: T, index: number) => React.ReactChild;
 }
 
-export interface IOverflowListState<T> {
+export interface OverflowListState<T> {
     /**
      * Direction of current overflow operation. An overflow can take several frames to settle.
      *
@@ -128,7 +125,7 @@ export interface IOverflowListState<T> {
     visible: T[];
 }
 
-export class OverflowList<T> extends React.Component<OverflowListProps<T>, IOverflowListState<T>> {
+export class OverflowList<T> extends React.Component<OverflowListProps<T>, OverflowListState<T>> {
     public static displayName = `${DISPLAYNAME_PREFIX}.OverflowList`;
 
     public static defaultProps: Partial<OverflowListProps<any>> = {
@@ -141,7 +138,7 @@ export class OverflowList<T> extends React.Component<OverflowListProps<T>, IOver
         return OverflowList as new (props: OverflowListProps<U>) => OverflowList<U>;
     }
 
-    public state: IOverflowListState<T> = {
+    public state: OverflowListState<T> = {
         direction: OverflowDirection.NONE,
         lastOverflowCount: 0,
         overflow: [],
@@ -157,7 +154,7 @@ export class OverflowList<T> extends React.Component<OverflowListProps<T>, IOver
         this.repartition(false);
     }
 
-    public shouldComponentUpdate(_nextProps: OverflowListProps<T>, nextState: IOverflowListState<T>) {
+    public shouldComponentUpdate(_nextProps: OverflowListProps<T>, nextState: OverflowListState<T>) {
         // We want this component to always re-render, even when props haven't changed, so that
         // changes in the renderers' behavior can be reflected.
         // The following statement prevents re-rendering only in the case where the state changes
@@ -166,7 +163,7 @@ export class OverflowList<T> extends React.Component<OverflowListProps<T>, IOver
         return !(this.state !== nextState && shallowCompareKeys(this.state, nextState));
     }
 
-    public componentDidUpdate(prevProps: OverflowListProps<T>, prevState: IOverflowListState<T>) {
+    public componentDidUpdate(prevProps: OverflowListProps<T>, prevState: OverflowListState<T>) {
         if (prevProps.observeParents !== this.props.observeParents) {
             console.warn(OVERFLOW_LIST_OBSERVE_PARENTS_CHANGED);
         }

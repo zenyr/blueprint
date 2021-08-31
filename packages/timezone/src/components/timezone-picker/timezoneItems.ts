@@ -14,20 +14,14 @@
  * limitations under the License.
  */
 
-import * as moment from "moment-timezone";
+import moment from "moment-timezone";
 
 import { IconName } from "@blueprintjs/core";
 
-import { getTimezoneMetadata, ITimezoneMetadata } from "./timezoneMetadata";
+import { getTimezoneMetadata, TimezoneMetadata } from "./timezoneMetadata";
 
-// eslint-disable-next-line deprecation/deprecation
-export type TimezoneItem = ITimezoneItem;
-/**
- * Timezone-specific QueryList item
- *
- * @deprecated use TimezoneItem
- */
-export interface ITimezoneItem {
+/** Timezone-specific QueryList item */
+export interface TimezoneItem {
     /** Key to be used as the rendered react key. */
     key: string;
 
@@ -104,7 +98,7 @@ function getPopulousTimezoneItems(date: Date): TimezoneItem[] {
     // Filter out noisy timezones. See https://github.com/moment/moment-timezone/issues/227
     const timezones = moment.tz.names().filter(timezone => /\//.test(timezone) && !/Etc\//.test(timezone));
 
-    const timezoneToMetadata = timezones.reduce<{ [timezone: string]: ITimezoneMetadata }>((store, zone) => {
+    const timezoneToMetadata = timezones.reduce<{ [timezone: string]: TimezoneMetadata }>((store, zone) => {
         store[zone] = getTimezoneMetadata(zone, date);
         return store;
     }, {});
@@ -129,7 +123,7 @@ function getPopulousTimezoneItems(date: Date): TimezoneItem[] {
     );
 }
 
-function toTimezoneItem({ abbreviation, offsetAsString, timezone }: ITimezoneMetadata): TimezoneItem {
+function toTimezoneItem({ abbreviation, offsetAsString, timezone }: TimezoneMetadata): TimezoneItem {
     return {
         key: timezone,
         label: offsetAsString,

@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import * as React from "react";
+import React from "react";
 
 import { Button, H5, Intent, TagProps, Switch, TagInput } from "@blueprintjs/core";
-import { Example, handleBooleanChange, handleValueChange, IExampleProps } from "@blueprintjs/docs-theme";
+import { Example, handleBooleanChange, handleValueChange, ExampleProps } from "@blueprintjs/docs-theme";
 
 import { IntentSelect } from "./common/intentSelect";
 
@@ -34,7 +34,7 @@ const VALUES = [
     undefined,
 ];
 
-export interface ITagInputExampleState {
+export interface TagInputExampleState {
     addOnBlur: boolean;
     addOnPaste: boolean;
     disabled: boolean;
@@ -47,8 +47,8 @@ export interface ITagInputExampleState {
     values: React.ReactNode[];
 }
 
-export class TagInputExample extends React.PureComponent<IExampleProps, ITagInputExampleState> {
-    public state: ITagInputExampleState = {
+export class TagInputExample extends React.PureComponent<ExampleProps, TagInputExampleState> {
+    public state: TagInputExampleState = {
         addOnBlur: false,
         addOnPaste: true,
         disabled: false,

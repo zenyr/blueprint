@@ -14,25 +14,25 @@
  * limitations under the License.
  */
 
-import * as React from "react";
+import React from "react";
 
 import { Intent } from "@blueprintjs/core";
-import { Example, IExampleProps } from "@blueprintjs/docs-theme";
-import { Column, ColumnHeaderCell, EditableCell2, EditableName, Table2 } from "@blueprintjs/table";
+import { Example, ExampleProps } from "@blueprintjs/docs-theme";
+import { Column, ColumnHeaderCell, EditableCell, EditableName, Table } from "@blueprintjs/table";
 
-export interface ITableEditableExampleState {
+export interface TableEditableExampleState {
     columnNames?: string[];
     sparseCellData?: { [key: string]: string };
     sparseCellIntent?: { [key: string]: Intent };
     sparseColumnIntents?: Intent[];
 }
 
-export class TableEditableExample extends React.PureComponent<IExampleProps, ITableEditableExampleState> {
+export class TableEditableExample extends React.PureComponent<ExampleProps, TableEditableExampleState> {
     public static dataKey = (rowIndex: number, columnIndex: number) => {
         return `${rowIndex}-${columnIndex}`;
     };
 
-    public state: ITableEditableExampleState = {
+    public state: TableEditableExampleState = {
         columnNames: ["Please", "Rename", "Me"],
         sparseCellData: {
             "1-1": "editable",
@@ -52,7 +52,7 @@ export class TableEditableExample extends React.PureComponent<IExampleProps, ITa
         });
         return (
             <Example options={false} showOptionsBelowExample={true} {...this.props}>
-                <Table2 numRows={7}>{columns}</Table2>
+                <Table numRows={7}>{columns}</Table>
             </Example>
         );
     }
@@ -61,7 +61,7 @@ export class TableEditableExample extends React.PureComponent<IExampleProps, ITa
         const dataKey = TableEditableExample.dataKey(rowIndex, columnIndex);
         const value = this.state.sparseCellData[dataKey];
         return (
-            <EditableCell2
+            <EditableCell
                 value={value == null ? "" : value}
                 intent={this.state.sparseCellIntent[dataKey]}
                 onCancel={this.cellValidator(rowIndex, columnIndex)}

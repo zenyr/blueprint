@@ -16,7 +16,7 @@
 
 import * as React from "react";
 
-import { comboMatches, getKeyCombo, IKeyCombo, parseKeyCombo } from "../../components/hotkeys/hotkeyParser";
+import { comboMatches, getKeyCombo, KeyCombo, parseKeyCombo } from "../../components/hotkeys/hotkeyParser";
 import { HotkeysContext } from "../../context";
 import { HotkeyConfig } from "./hotkeyConfig";
 
@@ -81,7 +81,7 @@ export function useHotkeys(keys: HotkeyConfig[], options: UseHotkeysOptions = {}
 
     const invokeNamedCallbackIfComboRecognized = (
         global: boolean,
-        combo: IKeyCombo,
+        combo: KeyCombo,
         callbackName: "onKeyDown" | "onKeyUp",
         e: KeyboardEvent,
     ) => {

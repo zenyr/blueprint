@@ -16,15 +16,15 @@
 
 import { assert } from "chai";
 import { mount, ReactWrapper, shallow, ShallowWrapper } from "enzyme";
-import * as React from "react";
+import React from "react";
 import { spy } from "sinon";
 
 import {
     Button,
     Classes,
     Icon,
-    IMenuItemProps,
-    IMenuProps,
+    MenuItemProps,
+    MenuProps,
     MenuItem,
     Popover,
     PopoverInteractionKind,
@@ -158,7 +158,7 @@ describe("MenuItem", () => {
 function findSubmenu(wrapper: ShallowWrapper<any, any>) {
     /* eslint-disable-next-line deprecation/deprecation */
     return wrapper.find(Popover).prop("content") as React.ReactElement<
-        IMenuProps & { children: Array<React.ReactElement<IMenuItemProps>> }
+        MenuProps & { children: Array<React.ReactElement<MenuItemProps>> }
     >;
 }
 

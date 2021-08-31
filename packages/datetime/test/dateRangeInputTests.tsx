@@ -16,22 +16,21 @@
 
 import { expect } from "chai";
 import { mount, ReactWrapper } from "enzyme";
-import * as React from "react";
-import * as ReactDOM from "react-dom";
+import React from "react";
+import ReactDOM from "react-dom";
 import * as TestUtils from "react-dom/test-utils";
-import * as sinon from "sinon";
+import sinon from "sinon";
 
 import {
     Boundary,
-    Classes as CoreClasses,
+    Classes,
     HTMLDivProps,
     HTMLInputProps,
-    IInputGroupProps2,
+    InputGroupProps,
     InputGroup,
-    IPopoverProps,
     Keys,
     Popover,
-    Position,
+    PopoverProps,
 } from "@blueprintjs/core";
 import { expectPropValidationError } from "@blueprintjs/test-commons";
 
@@ -121,7 +120,7 @@ describe("<DateRangeInput>", () => {
         );
         wrapper.setState({ isOpen: true });
 
-        const popoverTarget = wrapper.find(`.${CoreClasses.POPOVER_WRAPPER}`).hostNodes();
+        const popoverTarget = wrapper.find(`.${Classes.POPOVER_TARGET}`).hostNodes();
         expect(popoverTarget.hasClass(CLASS_1)).to.be.true;
         expect(popoverTarget.hasClass(CLASS_2)).to.be.true;
     });
@@ -155,7 +154,6 @@ describe("<DateRangeInput>", () => {
             );
 
             root.setState({ isOpen: true });
-            /* eslint-disable-next-line deprecation/deprecation */
             expect(root.find(Popover).prop("isOpen")).to.be.true;
 
             keyDownOnInput(DateClasses.TIMEPICKER_HOUR, Keys.ARROW_UP);
@@ -180,7 +178,6 @@ describe("<DateRangeInput>", () => {
 
             keyDownOnInput(DateClasses.TIMEPICKER_HOUR, Keys.ARROW_UP);
             root.update();
-            /* eslint-disable-next-line deprecation/deprecation */
             expect(root.find(Popover).prop("isOpen")).to.be.true;
         });
 
@@ -195,7 +192,6 @@ describe("<DateRangeInput>", () => {
             root.update();
             keyDownOnInput(DateClasses.TIMEPICKER_HOUR, Keys.ARROW_UP, 1);
             root.update();
-            /* eslint-disable-next-line deprecation/deprecation */
             expect(root.find(Popover).prop("isOpen")).to.be.true;
         });
 
@@ -222,7 +218,6 @@ describe("<DateRangeInput>", () => {
             const startInput = getStartInput(root);
 
             startInput.simulate("click");
-            /* eslint-disable-next-line deprecation/deprecation */
             expect(root.find(Popover).prop("isOpen")).to.be.false;
             expect(startInput.prop("disabled")).to.be.true;
         });
@@ -238,7 +233,6 @@ describe("<DateRangeInput>", () => {
             const endInput = getEndInput(root);
 
             endInput.simulate("click");
-            /* eslint-disable-next-line deprecation/deprecation */
             expect(root.find(Popover).prop("isOpen")).to.be.false;
             expect(endInput.prop("disabled")).to.be.true;
         });
@@ -263,7 +257,7 @@ describe("<DateRangeInput>", () => {
 
         function runTestSuite(
             inputGetterFn: (root: WrappedComponentRoot) => WrappedComponentInput,
-            mountFn: (inputGroupProps: IInputGroupProps2) => any,
+            mountFn: (inputGroupProps: InputGroupProps) => any,
         ) {
             it("allows custom placeholder text", () => {
                 const root = mountFn({ placeholder: "Hello" });
@@ -364,7 +358,6 @@ describe("<DateRangeInput>", () => {
         const { root } = wrap(<DateRangeInput {...DATE_FORMAT} disabled={true} />);
         const startInput = getStartInput(root);
         startInput.simulate("click");
-        /* eslint-disable-next-line deprecation/deprecation */
         expect(root.find(Popover).prop("isOpen")).to.be.false;
         expect(startInput.prop("disabled")).to.be.true;
         expect(getEndInput(root).prop("disabled")).to.be.true;
@@ -523,16 +516,14 @@ describe("<DateRangeInput>", () => {
 
     describe("popoverProps", () => {
         it("accepts custom popoverProps", () => {
-            const popoverProps: Partial<IPopoverProps> = {
+            const popoverProps: Partial<PopoverProps> = {
                 backdropProps: {},
-                position: Position.TOP_LEFT,
+                placement: "top-start",
                 usePortal: false,
             };
-            /* eslint-disable-next-line deprecation/deprecation */
             const popover = wrap(<DateRangeInput {...DATE_FORMAT} popoverProps={popoverProps} />).root.find(Popover);
             expect(popover.prop("backdropProps")).to.equal(popoverProps.backdropProps);
-            /* eslint-disable-next-line deprecation/deprecation */
-            expect(popover.prop("position")).to.equal(popoverProps.position);
+            expect(popover.prop("placement")).to.equal(popoverProps.placement);
         });
 
         it("ignores autoFocus, enforceFocus, and content in custom popoverProps", () => {
@@ -543,7 +534,6 @@ describe("<DateRangeInput>", () => {
                 enforceFocus: true,
                 usePortal: false,
             };
-            /* eslint-disable-next-line deprecation/deprecation */
             const popover = wrap(<DateRangeInput {...DATE_FORMAT} popoverProps={popoverProps} />).root.find(Popover);
             // this test assumes the following values will be the defaults internally
             expect(popover.prop("autoFocus")).to.be.false;
@@ -1065,7 +1055,7 @@ describe("<DateRangeInput>", () => {
                 str: HOVER_TEST_STR_5,
             };
 
-            interface IHoverTextDateConfig {
+            interface HoverTextDateConfig {
                 day: number;
                 date: Date;
                 str: string;
@@ -1099,14 +1089,14 @@ describe("<DateRangeInput>", () => {
                 changeInputText(getEndInput(root), "");
             });
 
-            function setSelectedRangeForHoverTest(selectedDateConfigs: IHoverTextDateConfig[]) {
+            function setSelectedRangeForHoverTest(selectedDateConfigs: HoverTextDateConfig[]) {
                 const [startConfig, endConfig] = selectedDateConfigs;
                 changeInputText(getStartInput(root), startConfig == null ? "" : startConfig.str);
                 changeInputText(getEndInput(root), endConfig == null ? "" : endConfig.str);
             }
 
             describe("when selected date range is [null, null]", () => {
-                const SELECTED_RANGE = [null, null] as IHoverTextDateConfig[];
+                const SELECTED_RANGE = [null, null] as HoverTextDateConfig[];
                 const HOVER_TEST_DATE_CONFIG = HOVER_TEST_DATE_CONFIG_1;
 
                 beforeEach(() => {

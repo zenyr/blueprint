@@ -1,6 +1,5 @@
 /*
- * Copyright 2016 Palantir Technologies, Inc. All rights reserved.
- *
+ * Copyright 2021 Palantir Technologies, Inc. All rights reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,47 +15,39 @@
 
 import classNames from "classnames";
 import * as React from "react";
-import { polyfill } from "react-lifecycles-compat";
 
 import {
-    AbstractComponent2,
+    AbstractComponent,
     DISPLAYNAME_PREFIX,
-    Hotkey,
-    Hotkeys,
+    HotkeyConfig,
     HotkeysTarget,
-    IRef,
+    Ref,
+    UseHotkeysReturnValue,
     Utils as CoreUtils,
 } from "@blueprintjs/core";
 
-import { ICellProps } from "./cell/cell";
-import { Column, IColumnProps } from "./column";
-import { IFocusedCellCoordinates } from "./common/cell";
+import { CellProps } from "./cell/cell";
+import { Column, ColumnProps } from "./column";
+import { FocusedCellCoordinates } from "./common/cell";
 import * as Classes from "./common/classes";
-import { columnInteractionBarContextTypes, IColumnInteractionBarContextTypes } from "./common/context";
+import { columnInteractionBarContextTypes, ColumnInteractionBarContextTypes } from "./common/context";
 import * as Errors from "./common/errors";
-import { Grid, ICellMapper } from "./common/grid";
+import { Grid, CellMapper } from "./common/grid";
 import * as FocusedCellUtils from "./common/internal/focusedCellUtils";
 import * as ScrollUtils from "./common/internal/scrollUtils";
 import { Rect } from "./common/rect";
 import { RenderMode } from "./common/renderMode";
 import { Utils } from "./common/utils";
 import { ColumnHeader } from "./headers/columnHeader";
-import { ColumnHeaderCell, IColumnHeaderCellProps } from "./headers/columnHeaderCell";
+import { ColumnHeaderCell, ColumnHeaderCellProps } from "./headers/columnHeaderCell";
 import { renderDefaultRowHeader, RowHeader } from "./headers/rowHeader";
 import { ResizeSensor } from "./interactions/resizeSensor";
 import { GuideLayer } from "./layers/guides";
 import { RegionStyler, RegionLayer } from "./layers/regions";
-import { Locator } from "./locator";
+import { Locator, LocatorImpl } from "./locator";
 import { QuadrantType } from "./quadrants/tableQuadrant";
 import { TableQuadrantStack } from "./quadrants/tableQuadrantStack";
-import {
-    ColumnLoadingOption,
-    IRegion,
-    RegionCardinality,
-    Regions,
-    SelectionModes,
-    TableLoadingOption,
-} from "./regions";
+import { ColumnLoadingOption, Region, RegionCardinality, Regions, SelectionModes, TableLoadingOption } from "./regions";
 import {
     IResizeRowsByApproximateHeightOptions,
     resizeRowsByApproximateHeight,
@@ -66,14 +57,15 @@ import { TableBody } from "./tableBody";
 import { TableHotkeys } from "./tableHotkeys";
 import type { TableProps } from "./tableProps";
 import type { TableState, TableSnapshot } from "./tableState";
-import { clampNumFrozenColumns, clampNumFrozenRows, hasLoadingOption } from "./tableUtils";
+import {
+    clampNumFrozenColumns,
+    clampNumFrozenRows,
+    getHotkeysFromProps,
+    hasLoadingOption,
+    isSelectionModeEnabled,
+} from "./tableUtils";
 
-/* eslint-disable deprecation/deprecation */
-
-/** @deprecated use Table2, which supports usage of the new hotkeys API in the same application */
-@HotkeysTarget
-@polyfill
-export class Table extends AbstractComponent2<TableProps, TableState, TableSnapshot> {
+export class Table extends AbstractComponent<TableProps, TableState, TableSnapshot> {
     public static displayName = `${DISPLAYNAME_PREFIX}.Table`;
 
     public static defaultProps: TableProps = {
@@ -95,7 +87,7 @@ export class Table extends AbstractComponent2<TableProps, TableState, TableSnaps
         selectionModes: SelectionModes.ALL,
     };
 
-    public static childContextTypes: React.ValidationMap<IColumnInteractionBarContextTypes> = columnInteractionBarContextTypes;
+    public static childContextTypes: React.ValidationMap<ColumnInteractionBarContextTypes> = columnInteractionBarContextTypes;
 
     public static getDerivedStateFromProps(props: TableProps, state: TableState) {
         const {
@@ -118,7 +110,7 @@ export class Table extends AbstractComponent2<TableProps, TableState, TableSnaps
             rowHeights = state.rowHeights;
         }
 
-        const newChildrenArray = React.Children.toArray(children) as Array<React.ReactElement<IColumnProps>>;
+        const newChildrenArray = React.Children.toArray(children) as Array<React.ReactElement<ColumnProps>>;
         const didChildrenChange = newChildrenArray !== state.childrenArray;
         const numCols = newChildrenArray.length;
 
@@ -128,7 +120,7 @@ export class Table extends AbstractComponent2<TableProps, TableState, TableSnaps
             // column that had the same `ID` prop. If none is found, use the
             // previous width at the same index.
             const previousColumnWidths = newChildrenArray.map(
-                (child: React.ReactElement<IColumnProps>, index: number) => {
+                (child: React.ReactElement<ColumnProps>, index: number) => {
                     const mappedIndex = state.columnIdToIndex[child.props.id];
                     return state.columnWidths[mappedIndex != null ? mappedIndex : index];
                 },
@@ -155,7 +147,7 @@ export class Table extends AbstractComponent2<TableProps, TableState, TableSnaps
             newSelectedRegions = state.selectedRegions.filter(region => {
                 const regionCardinality = Regions.getRegionCardinality(region);
                 return (
-                    Table.isSelectionModeEnabled(props, regionCardinality, selectionModes) &&
+                    isSelectionModeEnabled(props, regionCardinality, selectionModes) &&
                     Regions.isRegionValidForTable(region, numRows, numCols)
                 );
             });
@@ -206,15 +198,7 @@ export class Table extends AbstractComponent2<TableProps, TableState, TableSnaps
         return columnIdToIndex;
     }
 
-    private static isSelectionModeEnabled(
-        props: TableProps,
-        selectionMode: RegionCardinality,
-        selectionModes = props.selectionModes,
-    ) {
-        const { children, numRows } = props;
-        const numColumns = React.Children.count(children);
-        return selectionModes.indexOf(selectionMode) >= 0 && numRows > 0 && numColumns > 0;
-    }
+    private hotkeys: HotkeyConfig[] = [];
 
     private hotkeysImpl: TableHotkeys;
 
@@ -251,12 +235,12 @@ export class Table extends AbstractComponent2<TableProps, TableState, TableSnaps
      */
     private didCompletelyMount = false;
 
-    public constructor(props: TableProps, context?: any) {
-        super(props, context);
+    public constructor(props: TableProps) {
+        super(props);
 
         const { children, columnWidths, defaultRowHeight, defaultColumnWidth, numRows, rowHeights } = this.props;
 
-        const childrenArray = React.Children.toArray(children) as Array<React.ReactElement<IColumnProps>>;
+        const childrenArray = React.Children.toArray(children) as Array<React.ReactElement<ColumnProps>>;
         const columnIdToIndex = Table.createColumnIdIndex(childrenArray);
 
         // Create height/width arrays using the lengths from props and
@@ -267,7 +251,7 @@ export class Table extends AbstractComponent2<TableProps, TableState, TableSnaps
         let newRowHeights = Utils.times(numRows, () => defaultRowHeight);
         newRowHeights = Utils.assignSparseValues(newRowHeights, rowHeights);
 
-        const selectedRegions = props.selectedRegions == null ? ([] as IRegion[]) : props.selectedRegions;
+        const selectedRegions = props.selectedRegions == null ? ([] as Region[]) : props.selectedRegions;
         const focusedCell = FocusedCellUtils.getInitialFocusedCell(
             props.enableFocusedCell,
             props.focusedCell,
@@ -294,6 +278,7 @@ export class Table extends AbstractComponent2<TableProps, TableState, TableSnaps
             handleSelection: this.handleSelection,
             syncViewportPosition: this.syncViewportPosition,
         });
+        this.hotkeys = getHotkeysFromProps(props, this.hotkeysImpl);
     }
 
     // Instance methods
@@ -311,7 +296,7 @@ export class Table extends AbstractComponent2<TableProps, TableState, TableSnaps
      * Table font styles.
      */
     public resizeRowsByApproximateHeight(
-        getCellText: ICellMapper<string>,
+        getCellText: CellMapper<string>,
         options?: IResizeRowsByApproximateHeightOptions,
     ) {
         const rowHeights = resizeRowsByApproximateHeight(
@@ -357,7 +342,7 @@ export class Table extends AbstractComponent2<TableProps, TableState, TableSnaps
      * simply scroll the target region as close to the top-left as possible until the bottom-right
      * corner is reached.
      */
-    public scrollToRegion(region: IRegion) {
+    public scrollToRegion(region: Region) {
         const { numFrozenColumnsClamped: numFrozenColumns, numFrozenRowsClamped: numFrozenRows } = this.state;
         const { left: currScrollLeft, top: currScrollTop } = this.state.viewportRect;
 
@@ -381,7 +366,7 @@ export class Table extends AbstractComponent2<TableProps, TableState, TableSnaps
     // React lifecycle
     // ===============
 
-    public getChildContext(): IColumnInteractionBarContextTypes {
+    public getChildContext(): ColumnInteractionBarContextTypes {
         return {
             enableColumnInteractionBar: this.props.enableColumnInteractionBar,
         };
@@ -400,6 +385,10 @@ export class Table extends AbstractComponent2<TableProps, TableState, TableSnaps
     }
 
     public render() {
+        return <HotkeysTarget hotkeys={this.hotkeys}>{this.renderTableContents}</HotkeysTarget>;
+    }
+
+    private renderTableContents = ({ handleKeyDown, handleKeyUp }: UseHotkeysReturnValue) => {
         const {
             children,
             className,
@@ -421,14 +410,21 @@ export class Table extends AbstractComponent2<TableProps, TableState, TableSnaps
                 [Classes.TABLE_REORDERING]: this.state.isReordering,
                 [Classes.TABLE_NO_VERTICAL_SCROLL]: this.shouldDisableVerticalScroll(),
                 [Classes.TABLE_NO_HORIZONTAL_SCROLL]: this.shouldDisableHorizontalScroll(),
-                [Classes.TABLE_SELECTION_ENABLED]: Table.isSelectionModeEnabled(this.props, RegionCardinality.CELLS),
+                [Classes.TABLE_SELECTION_ENABLED]: isSelectionModeEnabled(this.props, RegionCardinality.CELLS),
                 [Classes.TABLE_NO_ROWS]: numRows === 0,
             },
             className,
         );
 
         return (
-            <div className={classes} ref={this.refHandlers.rootTable} onScroll={this.handleRootScroll}>
+            <div
+                className={classes}
+                ref={this.refHandlers.rootTable}
+                onScroll={this.handleRootScroll}
+                onKeyDown={handleKeyDown}
+                onKeyUp={handleKeyUp}
+                tabIndex={0}
+            >
                 <TableQuadrantStack
                     bodyRef={this.refHandlers.cellContainer}
                     bodyRenderer={this.renderBody}
@@ -463,17 +459,7 @@ export class Table extends AbstractComponent2<TableProps, TableState, TableSnaps
                 />
             </div>
         );
-    }
-
-    public renderHotkeys() {
-        const hotkeys = [
-            this.maybeRenderCopyHotkey(),
-            this.maybeRenderSelectAllHotkey(),
-            this.maybeRenderFocusHotkeys(),
-            this.maybeRenderSelectionResizeHotkeys(),
-        ];
-        return <Hotkeys>{hotkeys.filter(element => element !== undefined)}</Hotkeys>;
-    }
+    };
 
     /**
      * When the component mounts, the HTML Element refs will be available, so
@@ -483,7 +469,7 @@ export class Table extends AbstractComponent2<TableProps, TableState, TableSnaps
     public componentDidMount() {
         this.validateGrid();
 
-        this.locator = new Locator(this.rootTableElement, this.scrollContainerElement, this.cellContainerElement);
+        this.locator = new LocatorImpl(this.rootTableElement, this.scrollContainerElement, this.cellContainerElement);
         this.updateLocator();
         this.updateViewportRect(this.locator.getViewportRect());
 
@@ -531,7 +517,7 @@ export class Table extends AbstractComponent2<TableProps, TableState, TableSnaps
         this.hotkeysImpl.setProps(this.props);
 
         const didChildrenChange =
-            (React.Children.toArray(this.props.children) as Array<React.ReactElement<IColumnProps>>) !==
+            (React.Children.toArray(this.props.children) as Array<React.ReactElement<ColumnProps>>) !==
             this.state.childrenArray;
 
         const shouldInvalidateGrid =
@@ -560,6 +546,16 @@ export class Table extends AbstractComponent2<TableProps, TableState, TableSnaps
         if (didUpdateColumnOrRowSizes) {
             this.quadrantStackInstance.synchronizeQuadrantViews();
             this.syncViewportPosition(snapshot);
+        }
+
+        const shouldInvalidateHotkeys =
+            this.props.getCellClipboardData !== prevProps.getCellClipboardData ||
+            this.props.enableFocusedCell !== prevProps.enableFocusedCell ||
+            this.props.enableMultipleSelection !== prevProps.enableMultipleSelection ||
+            this.props.selectionModes !== prevProps.selectionModes;
+
+        if (shouldInvalidateHotkeys) {
+            this.hotkeys = getHotkeysFromProps(this.props, this.hotkeysImpl);
         }
     }
 
@@ -606,152 +602,6 @@ export class Table extends AbstractComponent2<TableProps, TableState, TableSnaps
         );
     }
 
-    // Hotkeys
-    // =======
-
-    private maybeRenderCopyHotkey() {
-        const { getCellClipboardData } = this.props;
-        if (getCellClipboardData != null) {
-            return (
-                <Hotkey
-                    key="copy-hotkey"
-                    label="Copy selected table cells"
-                    group="Table"
-                    combo="mod+c"
-                    onKeyDown={this.hotkeysImpl.handleCopy}
-                />
-            );
-        } else {
-            return undefined;
-        }
-    }
-
-    private maybeRenderSelectionResizeHotkeys() {
-        const { enableMultipleSelection, selectionModes } = this.props;
-        const isSomeSelectionModeEnabled = selectionModes.length > 0;
-
-        if (enableMultipleSelection && isSomeSelectionModeEnabled) {
-            return [
-                <Hotkey
-                    key="resize-selection-up"
-                    label="Resize selection upward"
-                    group="Table"
-                    combo="shift+up"
-                    onKeyDown={this.hotkeysImpl.handleSelectionResizeUp}
-                />,
-                <Hotkey
-                    key="resize-selection-down"
-                    label="Resize selection downward"
-                    group="Table"
-                    combo="shift+down"
-                    onKeyDown={this.hotkeysImpl.handleSelectionResizeDown}
-                />,
-                <Hotkey
-                    key="resize-selection-left"
-                    label="Resize selection leftward"
-                    group="Table"
-                    combo="shift+left"
-                    onKeyDown={this.hotkeysImpl.handleSelectionResizeLeft}
-                />,
-                <Hotkey
-                    key="resize-selection-right"
-                    label="Resize selection rightward"
-                    group="Table"
-                    combo="shift+right"
-                    onKeyDown={this.hotkeysImpl.handleSelectionResizeRight}
-                />,
-            ];
-        } else {
-            return undefined;
-        }
-    }
-
-    private maybeRenderFocusHotkeys() {
-        const { enableFocusedCell } = this.props;
-        if (enableFocusedCell != null) {
-            return [
-                <Hotkey
-                    key="move left"
-                    label="Move focus cell left"
-                    group="Table"
-                    combo="left"
-                    onKeyDown={this.hotkeysImpl.handleFocusMoveLeft}
-                />,
-                <Hotkey
-                    key="move right"
-                    label="Move focus cell right"
-                    group="Table"
-                    combo="right"
-                    onKeyDown={this.hotkeysImpl.handleFocusMoveRight}
-                />,
-                <Hotkey
-                    key="move up"
-                    label="Move focus cell up"
-                    group="Table"
-                    combo="up"
-                    onKeyDown={this.hotkeysImpl.handleFocusMoveUp}
-                />,
-                <Hotkey
-                    key="move down"
-                    label="Move focus cell down"
-                    group="Table"
-                    combo="down"
-                    onKeyDown={this.hotkeysImpl.handleFocusMoveDown}
-                />,
-                <Hotkey
-                    key="move tab"
-                    label="Move focus cell tab"
-                    group="Table"
-                    combo="tab"
-                    onKeyDown={this.hotkeysImpl.handleFocusMoveRightInternal}
-                    allowInInput={true}
-                />,
-                <Hotkey
-                    key="move shift-tab"
-                    label="Move focus cell shift tab"
-                    group="Table"
-                    combo="shift+tab"
-                    onKeyDown={this.hotkeysImpl.handleFocusMoveLeftInternal}
-                    allowInInput={true}
-                />,
-                <Hotkey
-                    key="move enter"
-                    label="Move focus cell enter"
-                    group="Table"
-                    combo="enter"
-                    onKeyDown={this.hotkeysImpl.handleFocusMoveDownInternal}
-                    allowInInput={true}
-                />,
-                <Hotkey
-                    key="move shift-enter"
-                    label="Move focus cell shift enter"
-                    group="Table"
-                    combo="shift+enter"
-                    onKeyDown={this.hotkeysImpl.handleFocusMoveUpInternal}
-                    allowInInput={true}
-                />,
-            ];
-        } else {
-            return [];
-        }
-    }
-
-    private maybeRenderSelectAllHotkey() {
-        if (Table.isSelectionModeEnabled(this.props, RegionCardinality.FULL_TABLE)) {
-            return (
-                <Hotkey
-                    key="select-all-hotkey"
-                    label="Select all"
-                    group="Table"
-                    combo="mod+a"
-                    onKeyDown={this.hotkeysImpl.handleSelectAllHotkey}
-                />
-            );
-        } else {
-            return undefined;
-        }
-    }
-
     // Quadrant refs
     // =============
 
@@ -781,9 +631,9 @@ export class Table extends AbstractComponent2<TableProps, TableState, TableSnaps
         return areGhostColumnsVisible && (isViewportUnscrolledHorizontally || areColumnHeadersLoading);
     }
 
-    private renderMenu = (refHandler: IRef<HTMLDivElement>) => {
+    private renderMenu = (refHandler: Ref<HTMLDivElement>) => {
         const classes = classNames(Classes.TABLE_MENU, {
-            [Classes.TABLE_SELECTION_ENABLED]: Table.isSelectionModeEnabled(this.props, RegionCardinality.FULL_TABLE),
+            [Classes.TABLE_SELECTION_ENABLED]: isSelectionModeEnabled(this.props, RegionCardinality.FULL_TABLE),
         });
         return (
             <div className={classes} ref={refHandler} onMouseDown={this.handleMenuMouseDown}>
@@ -811,7 +661,7 @@ export class Table extends AbstractComponent2<TableProps, TableState, TableSnaps
     };
 
     private getColumnProps(columnIndex: number) {
-        const column = this.state.childrenArray[columnIndex] as React.ReactElement<IColumnProps>;
+        const column = this.state.childrenArray[columnIndex] as React.ReactElement<ColumnProps>;
         return column === undefined ? undefined : column.props;
     }
 
@@ -829,13 +679,13 @@ export class Table extends AbstractComponent2<TableProps, TableState, TableSnaps
             const columnHeaderCell = columnHeaderCellRenderer(columnIndex);
             const columnHeaderCellLoading = columnHeaderCell.props.loading;
 
-            const columnHeaderCellProps: IColumnHeaderCellProps = {
+            const columnHeaderCellProps: ColumnHeaderCellProps = {
                 loading: columnHeaderCellLoading != null ? columnHeaderCellLoading : columnLoading,
             };
             return React.cloneElement(columnHeaderCell, columnHeaderCellProps);
         }
 
-        const baseProps: IColumnHeaderCellProps = {
+        const baseProps: ColumnHeaderCellProps = {
             index: columnIndex,
             loading: columnLoading,
             ...spreadableProps,
@@ -849,7 +699,7 @@ export class Table extends AbstractComponent2<TableProps, TableState, TableSnaps
     };
 
     private renderColumnHeader = (
-        refHandler: IRef<HTMLDivElement>,
+        refHandler: Ref<HTMLDivElement>,
         resizeHandler: (verticalGuides: number[]) => void,
         reorderingHandler: (oldIndex: number, newIndex: number, length: number) => void,
         showFrozenColumnsOnly: boolean = false,
@@ -867,7 +717,7 @@ export class Table extends AbstractComponent2<TableProps, TableState, TableSnaps
         } = this.props;
 
         const classes = classNames(Classes.TABLE_COLUMN_HEADERS, {
-            [Classes.TABLE_SELECTION_ENABLED]: Table.isSelectionModeEnabled(this.props, RegionCardinality.FULL_COLUMNS),
+            [Classes.TABLE_SELECTION_ENABLED]: isSelectionModeEnabled(this.props, RegionCardinality.FULL_COLUMNS),
         });
 
         const columnIndices = this.grid.getColumnIndicesInRect(viewportRect, enableGhostCells);
@@ -909,7 +759,7 @@ export class Table extends AbstractComponent2<TableProps, TableState, TableSnaps
     };
 
     private renderRowHeader = (
-        refHandler: IRef<HTMLDivElement>,
+        refHandler: Ref<HTMLDivElement>,
         resizeHandler: (verticalGuides: number[]) => void,
         reorderingHandler: (oldIndex: number, newIndex: number, length: number) => void,
         showFrozenRowsOnly: boolean = false,
@@ -928,7 +778,7 @@ export class Table extends AbstractComponent2<TableProps, TableState, TableSnaps
         } = this.props;
 
         const classes = classNames(Classes.TABLE_ROW_HEADERS, {
-            [Classes.TABLE_SELECTION_ENABLED]: Table.isSelectionModeEnabled(this.props, RegionCardinality.FULL_ROWS),
+            [Classes.TABLE_SELECTION_ENABLED]: isSelectionModeEnabled(this.props, RegionCardinality.FULL_ROWS),
         });
 
         const rowIndices = this.grid.getRowIndicesInRect(viewportRect, enableGhostCells);
@@ -960,6 +810,7 @@ export class Table extends AbstractComponent2<TableProps, TableState, TableSnaps
                     rowIndexStart={rowIndexStart}
                     rowIndexEnd={rowIndexEnd}
                 />
+
                 {this.maybeRenderRegions(this.styleRowHeaderRegion)}
             </div>
         );
@@ -984,7 +835,7 @@ export class Table extends AbstractComponent2<TableProps, TableState, TableSnaps
         const cell = cellRenderer(rowIndex, columnIndex);
         const { loading = hasLoadingOption(loadingOptions, ColumnLoadingOption.CELLS) } = cell.props;
 
-        const cellProps: ICellProps = {
+        const cellProps: CellProps = {
             ...restColumnProps,
             loading,
         };
@@ -1005,6 +856,7 @@ export class Table extends AbstractComponent2<TableProps, TableState, TableSnaps
             viewportRect,
         } = this.state;
         const {
+            enableBodyContextMenu,
             enableMultipleSelection,
             enableGhostCells,
             loadingOptions,
@@ -1032,6 +884,7 @@ export class Table extends AbstractComponent2<TableProps, TableState, TableSnaps
         return (
             <div>
                 <TableBody
+                    enableBodyContextMenu={enableBodyContextMenu ?? bodyContextMenuRenderer != null}
                     enableMultipleSelection={enableMultipleSelection}
                     cellRenderer={this.bodyCellRenderer}
                     focusedCell={focusedCell}
@@ -1063,7 +916,7 @@ export class Table extends AbstractComponent2<TableProps, TableState, TableSnaps
     }
 
     private getEnabledSelectionHandler = (selectionMode: RegionCardinality) => {
-        if (!Table.isSelectionModeEnabled(this.props, selectionMode)) {
+        if (!isSelectionModeEnabled(this.props, selectionMode)) {
             // If the selection mode isn't enabled, return a callback that
             // will clear the selection. For example, if row selection is
             // disabled, clicking on the row header will clear the table's
@@ -1131,7 +984,7 @@ export class Table extends AbstractComponent2<TableProps, TableState, TableSnaps
         }
     };
 
-    private styleBodyRegion = (region: IRegion, quadrantType: QuadrantType): React.CSSProperties => {
+    private styleBodyRegion = (region: Region, quadrantType: QuadrantType): React.CSSProperties => {
         const { numFrozenColumns } = this.props;
 
         const cardinality = Regions.getRegionCardinality(region);
@@ -1178,7 +1031,7 @@ export class Table extends AbstractComponent2<TableProps, TableState, TableSnaps
         }
     };
 
-    private styleMenuRegion = (region: IRegion): React.CSSProperties => {
+    private styleMenuRegion = (region: Region): React.CSSProperties => {
         const { viewportRect } = this.state;
         if (viewportRect == null) {
             return {};
@@ -1201,7 +1054,7 @@ export class Table extends AbstractComponent2<TableProps, TableState, TableSnaps
         }
     };
 
-    private styleColumnHeaderRegion = (region: IRegion): React.CSSProperties => {
+    private styleColumnHeaderRegion = (region: Region): React.CSSProperties => {
         const { viewportRect } = this.state;
         if (viewportRect == null) {
             return {};
@@ -1224,7 +1077,7 @@ export class Table extends AbstractComponent2<TableProps, TableState, TableSnaps
         }
     };
 
-    private styleRowHeaderRegion = (region: IRegion): React.CSSProperties => {
+    private styleRowHeaderRegion = (region: Region): React.CSSProperties => {
         const { viewportRect } = this.state;
         if (viewportRect == null) {
             return {};
@@ -1320,7 +1173,7 @@ export class Table extends AbstractComponent2<TableProps, TableState, TableSnaps
         }
     };
 
-    private clearSelection = (_selectedRegions: IRegion[]) => {
+    private clearSelection = (_selectedRegions: Region[]) => {
         this.handleSelection([]);
     };
 
@@ -1349,7 +1202,7 @@ export class Table extends AbstractComponent2<TableProps, TableState, TableSnaps
         }
     };
 
-    private handleFocus = (focusedCell: IFocusedCellCoordinates) => {
+    private handleFocus = (focusedCell: FocusedCellCoordinates) => {
         if (!this.props.enableFocusedCell) {
             // don't set focus state if focus is not allowed
             return;
@@ -1363,7 +1216,7 @@ export class Table extends AbstractComponent2<TableProps, TableState, TableSnaps
         this.props.onFocusedCell?.(focusedCell);
     };
 
-    private handleSelection = (selectedRegions: IRegion[]) => {
+    private handleSelection = (selectedRegions: Region[]) => {
         // only set selectedRegions state if not specified in props
         if (this.props.selectedRegions == null) {
             this.setState({ selectedRegions });

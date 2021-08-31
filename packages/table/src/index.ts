@@ -14,62 +14,43 @@
  * limitations under the License.
  */
 
-/* eslint-disable deprecation/deprecation */
+export { Cell, CellProps, CellRenderer } from "./cell/cell";
 
-export { Cell, CellProps, ICellProps, ICellRenderer, CellRenderer } from "./cell/cell";
+export { EditableCell, EditableCellProps } from "./cell/editableCell";
 
-export { EditableCell, IEditableCellProps, EditableCellProps } from "./cell/editableCell";
+export { JSONFormat, JSONFormatProps } from "./cell/formats/jsonFormat";
 
-export { EditableCell2, EditableCell2Props } from "./cell/editableCell2";
+export { TruncatedPopoverMode, TruncatedFormat, TruncatedFormatProps } from "./cell/formats/truncatedFormat";
 
-export { JSONFormat, IJSONFormatProps, JSONFormatProps } from "./cell/formats/jsonFormat";
-
-export {
-    TruncatedPopoverMode,
-    TruncatedFormat,
-    TruncatedFormatProps,
-    ITruncatedFormatProps,
-} from "./cell/formats/truncatedFormat";
-
-export { Column, ColumnProps, IColumnProps } from "./column";
+export { Column, ColumnProps } from "./column";
 
 export { AnyRect, Clipboard, Grid, Rect, RenderMode, Utils } from "./common/index";
 
-export { IDraggableProps, Draggable } from "./interactions/draggable";
+export { DraggableProps, Draggable } from "./interactions/draggable";
 
-export {
-    IClientCoordinates,
-    ClientCoordinates,
-    ICoordinateData,
-    CoordinateData,
-    IDragHandler,
-    DragHandler,
-} from "./interactions/dragTypes";
+export { ClientCoordinates, CoordinateData, DragHandler } from "./interactions/dragTypes";
 
-export { CopyCellsMenuItem, IContextMenuRenderer, ContextMenuRenderer, IMenuContext } from "./interactions/menus";
+export { CopyCellsMenuItem, ContextMenuRenderer, MenuContext } from "./interactions/menus";
 
-export { ILockableLayout, IResizeHandleProps, Orientation, ResizeHandle } from "./interactions/resizeHandle";
+export { LockableLayout, ResizeHandleProps, Orientation, ResizeHandle } from "./interactions/resizeHandle";
 
-export { ISelectableProps, IDragSelectableProps, DragSelectable } from "./interactions/selectable";
+export { SelectableProps, DragSelectableProps, DragSelectable } from "./interactions/selectable";
 
-export { ColumnHeaderRenderer, IColumnHeaderRenderer } from "./headers/columnHeader";
+export { ColumnHeaderRenderer } from "./headers/columnHeader";
 
 export { RowHeaderRenderer } from "./headers/rowHeader";
 
-export { ColumnHeaderCell, IColumnHeaderCellProps, HorizontalCellDivider } from "./headers/columnHeaderCell";
+export { ColumnHeaderCell, ColumnHeaderCellProps, HorizontalCellDivider } from "./headers/columnHeaderCell";
 
-export { IRowHeaderCellProps, RowHeaderCell } from "./headers/rowHeaderCell";
+export { RowHeaderCellProps, RowHeaderCell } from "./headers/rowHeaderCell";
 
-export { IEditableNameProps, EditableNameProps, EditableName } from "./headers/editableName";
+export { EditableNameProps, EditableName } from "./headers/editableName";
 
 export {
-    CellInterval,
     CellCoordinate,
+    CellInterval,
     ColumnLoadingOption,
-    ICellInterval,
-    IRegion,
     Region,
-    IStyledRegionGroup,
     RegionCardinality,
     Regions,
     RowLoadingOption,
@@ -78,8 +59,6 @@ export {
     TableLoadingOption,
 } from "./regions";
 
-export { ITableProps, TableProps } from "./tableProps";
-
 export { Table } from "./table";
 
-export { Table2 } from "./table2";
+export { TableProps } from "./tableProps";

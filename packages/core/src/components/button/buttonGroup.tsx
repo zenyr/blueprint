@@ -15,16 +15,12 @@
  */
 
 import classNames from "classnames";
-import * as React from "react";
-import { polyfill } from "react-lifecycles-compat";
+import React from "react";
 
-import { AbstractPureComponent2, Alignment, Classes } from "../../common";
+import { AbstractPureComponent, Alignment, Classes } from "../../common";
 import { DISPLAYNAME_PREFIX, HTMLDivProps, Props } from "../../common/props";
 
-// eslint-disable-next-line deprecation/deprecation
-export type ButtonGroupProps = IButtonGroupProps;
-/** @deprecated use ButtonGroupProps */
-export interface IButtonGroupProps extends Props, HTMLDivProps {
+export interface ButtonGroupProps extends Props, HTMLDivProps {
     /**
      * Text alignment within button. By default, icons and text will be centered
      * within the button. Passing `"left"` or `"right"` will align the button
@@ -64,8 +60,7 @@ export interface IButtonGroupProps extends Props, HTMLDivProps {
 
 // this component is simple enough that tests would be purely tautological.
 /* istanbul ignore next */
-@polyfill
-export class ButtonGroup extends AbstractPureComponent2<ButtonGroupProps> {
+export class ButtonGroup extends AbstractPureComponent<ButtonGroupProps> {
     public static displayName = `${DISPLAYNAME_PREFIX}.ButtonGroup`;
 
     public render() {

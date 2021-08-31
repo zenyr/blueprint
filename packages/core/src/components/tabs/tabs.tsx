@@ -15,10 +15,9 @@
  */
 
 import classNames from "classnames";
-import * as React from "react";
-import { polyfill } from "react-lifecycles-compat";
+import React from "react";
 
-import { AbstractPureComponent2, Classes, Keys } from "../../common";
+import { AbstractPureComponent, Classes, Keys } from "../../common";
 import { DISPLAYNAME_PREFIX, Props } from "../../common/props";
 import * as Utils from "../../common/utils";
 import { TabProps, Tab, TabId } from "./tab";
@@ -30,10 +29,7 @@ type TabElement = React.ReactElement<TabProps & { children: React.ReactNode }>;
 
 const TAB_SELECTOR = `.${Classes.TAB}`;
 
-// eslint-disable-next-line deprecation/deprecation
-export type TabsProps = ITabsProps;
-/** @deprecated use TabsProps */
-export interface ITabsProps extends Props {
+export interface TabsProps extends Props {
     /**
      * Whether the selected tab indicator should animate its movement.
      *
@@ -51,7 +47,7 @@ export interface ITabsProps extends Props {
 
     /**
      * Unique identifier for this `Tabs` container. This will be combined with the `id` of each
-     * `Tab` child to generate ARIA accessibility attributes. IDs are required and should be
+     * `Tab` child to generate ARIA accessibility attributes. Dsare required and should be
      * unique on the page to support server-side rendering.
      */
     id: TabId;
@@ -93,15 +89,12 @@ export interface ITabsProps extends Props {
     onChange?(newTabId: TabId, prevTabId: TabId | undefined, event: React.MouseEvent<HTMLElement>): void;
 }
 
-export interface ITabsState {
+export interface TabsState {
     indicatorWrapperStyle?: React.CSSProperties;
     selectedTabId?: TabId;
 }
 
-// HACKHACK: https://github.com/palantir/blueprint/issues/4342
-// eslint-disable-next-line deprecation/deprecation
-@(polyfill as Utils.LifecycleCompatPolyfill<ITabsProps, any>)
-export class Tabs extends AbstractPureComponent2<TabsProps, ITabsState> {
+export class Tabs extends AbstractPureComponent<TabsProps, TabsState> {
     /** Insert a `Tabs.Expander` between any two children to right-align all subsequent children. */
     public static Expander = Expander;
 
@@ -177,7 +170,7 @@ export class Tabs extends AbstractPureComponent2<TabsProps, ITabsState> {
         this.moveSelectionIndicator(false);
     }
 
-    public componentDidUpdate(prevProps: TabsProps, prevState: ITabsState) {
+    public componentDidUpdate(prevProps: TabsProps, prevState: TabsState) {
         if (this.state.selectedTabId !== prevState.selectedTabId) {
             this.moveSelectionIndicator();
         } else if (prevState.selectedTabId != null) {

@@ -24,16 +24,12 @@ import { TimePickerProps, TimePrecision } from "./timePicker";
 /**
  * Collection of functions that determine which modifier classes get applied to which days.
  * See the [**react-day-picker** documentation](http://react-day-picker.js.org/api/ModifiersUtils) to learn more.
- *
- * @deprecated use DatePickerModifiers
  */
-export interface IDatePickerModifiers {
+export interface DatePickerModifiers {
     [name: string]: (date: Date) => boolean;
 }
-// eslint-disable-next-line deprecation/deprecation
-export type DatePickerModifiers = IDatePickerModifiers;
 
-export interface IDatePickerBaseProps {
+export interface DatePickerBaseProps {
     /**
      * Props to pass to ReactDayPicker. See API documentation
      * [here](http://react-day-picker.js.org/api/DayPicker).

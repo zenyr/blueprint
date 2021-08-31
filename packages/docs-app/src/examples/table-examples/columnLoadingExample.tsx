@@ -14,25 +14,25 @@
  * limitations under the License.
  */
 
-import * as React from "react";
+import React from "react";
 
 import { HTMLSelect, Label } from "@blueprintjs/core";
-import { Example, handleNumberChange, IExampleProps } from "@blueprintjs/docs-theme";
-import { Cell, Column, ColumnLoadingOption, Table2 } from "@blueprintjs/table";
+import { Example, handleNumberChange, ExampleProps } from "@blueprintjs/docs-theme";
+import { Cell, Column, ColumnLoadingOption, Table } from "@blueprintjs/table";
 
-interface IBigSpaceRock {
+interface BigSpaceRock {
     [key: string]: number | string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const bigSpaceRocks: IBigSpaceRock[] = require("./potentiallyHazardousAsteroids.json");
+const bigSpaceRocks: BigSpaceRock[] = require("./potentiallyHazardousAsteroids.json");
 
-export interface IColumnLoadingExampleState {
+export interface ColumnLoadingExampleState {
     loadingColumn?: number;
 }
 
-export class ColumnLoadingExample extends React.PureComponent<IExampleProps, IColumnLoadingExampleState> {
-    public state: IColumnLoadingExampleState = {
+export class ColumnLoadingExample extends React.PureComponent<ExampleProps, ColumnLoadingExampleState> {
+    public state: ColumnLoadingExampleState = {
         loadingColumn: 1,
     };
 
@@ -41,7 +41,7 @@ export class ColumnLoadingExample extends React.PureComponent<IExampleProps, ICo
     public render() {
         return (
             <Example options={this.renderOptions()} showOptionsBelowExample={true} {...this.props}>
-                <Table2 numRows={bigSpaceRocks.length}>{this.renderColumns()}</Table2>
+                <Table numRows={bigSpaceRocks.length}>{this.renderColumns()}</Table>
             </Example>
         );
     }

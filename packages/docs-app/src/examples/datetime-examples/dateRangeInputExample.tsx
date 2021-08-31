@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-import * as React from "react";
+import React from "react";
 
 import { H5, Switch } from "@blueprintjs/core";
 import { DateRange, DateRangeInput, DateFormatProps, TimePrecision } from "@blueprintjs/datetime";
-import { Example, handleBooleanChange, IExampleProps } from "@blueprintjs/docs-theme";
+import { Example, handleBooleanChange, ExampleProps } from "@blueprintjs/docs-theme";
 
 import { FORMATS, FormatSelect } from "./common/formatSelect";
 import { MomentDateRange } from "./common/momentDate";
 
-export interface IDateRangeInputExampleState {
+export interface DateRangeInputExampleState {
     allowSingleDayRange: boolean;
     closeOnSelection: boolean;
     contiguousCalendarMonths: boolean;
@@ -38,8 +38,8 @@ export interface IDateRangeInputExampleState {
     showTimeArrowButtons: boolean;
 }
 
-export class DateRangeInputExample extends React.PureComponent<IExampleProps, IDateRangeInputExampleState> {
-    public state: IDateRangeInputExampleState = {
+export class DateRangeInputExample extends React.PureComponent<ExampleProps, DateRangeInputExampleState> {
+    public state: DateRangeInputExampleState = {
         allowSingleDayRange: false,
         closeOnSelection: false,
         contiguousCalendarMonths: true,

@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-import * as React from "react";
+import React from "react";
 
 import { Utils as CoreUtils } from "@blueprintjs/core";
 
 import { FocusedCellCoordinates } from "../common/cell";
 import { Utils } from "../common/utils";
 import { Region, RegionCardinality, Regions } from "../regions";
-import { Draggable, IDraggableProps } from "./draggable";
-import { ICoordinateData } from "./dragTypes";
+import { Draggable, DraggableProps } from "./draggable";
+import { CoordinateData } from "./dragTypes";
 
-export interface IReorderableProps {
+export interface ReorderableProps {
     /**
      * A callback that is called while the user is dragging to reorder.
      *
@@ -64,7 +64,7 @@ export interface IReorderableProps {
     selectedRegions?: Region[];
 }
 
-export interface IDragReorderable extends IReorderableProps {
+export interface DragReorderable extends ReorderableProps {
     /**
      * Whether the reordering behavior is disabled.
      *
@@ -83,7 +83,7 @@ export interface IDragReorderable extends IReorderableProps {
      * This is equivalent to the absolute index in the old ordering where the
      * reordered element will move.
      */
-    locateDrag: (event: MouseEvent, coords: ICoordinateData) => number;
+    locateDrag: (event: MouseEvent, coords: CoordinateData) => number;
 
     /**
      * A callback that converts the provided index into a region. The returned
@@ -92,8 +92,8 @@ export interface IDragReorderable extends IReorderableProps {
     toRegion: (index1: number, index2?: number) => Region;
 }
 
-export class DragReorderable extends React.PureComponent<IDragReorderable> {
-    public static defaultProps: Partial<IDragReorderable> = {
+export class DragReorderable extends React.PureComponent<DragReorderable> {
+    public static defaultProps: Partial<DragReorderable> = {
         selectedRegions: [],
     };
 
@@ -110,7 +110,7 @@ export class DragReorderable extends React.PureComponent<IDragReorderable> {
         );
     }
 
-    private getDraggableProps(): IDraggableProps {
+    private getDraggableProps(): DraggableProps {
         return this.props.onReordered == null
             ? {}
             : {
@@ -167,7 +167,7 @@ export class DragReorderable extends React.PureComponent<IDragReorderable> {
         return true;
     };
 
-    private handleDragMove = (event: MouseEvent, coords: ICoordinateData) => {
+    private handleDragMove = (event: MouseEvent, coords: CoordinateData) => {
         const oldIndex = this.selectedRegionStartIndex;
         const guideIndex = this.props.locateDrag(event, coords);
         const length = this.selectedRegionLength;
@@ -175,7 +175,7 @@ export class DragReorderable extends React.PureComponent<IDragReorderable> {
         this.props.onReordering(oldIndex, reorderedIndex, length);
     };
 
-    private handleDragEnd = (event: MouseEvent, coords: ICoordinateData) => {
+    private handleDragEnd = (event: MouseEvent, coords: CoordinateData) => {
         const oldIndex = this.selectedRegionStartIndex;
         const guideIndex = this.props.locateDrag(event, coords);
         const length = this.selectedRegionLength;

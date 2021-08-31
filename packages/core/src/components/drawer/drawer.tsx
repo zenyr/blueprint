@@ -15,17 +15,18 @@
  */
 
 import classNames from "classnames";
-import * as React from "react";
-import { polyfill } from "react-lifecycles-compat";
+import React from "react";
 
-import { AbstractPureComponent2, Classes } from "../../common";
+import { SmallCross, IconName, IconSize } from "@blueprintjs/icons";
+
+import { AbstractPureComponent, Classes } from "../../common";
 import * as Errors from "../../common/errors";
 import { getPositionIgnoreAngles, isPositionHorizontal, Position } from "../../common/position";
 import { DISPLAYNAME_PREFIX, Props, MaybeElement } from "../../common/props";
 import { Button } from "../button/buttons";
 import { H4 } from "../html/html";
-import { Icon, IconName, IconSize } from "../icon/icon";
-import { IBackdropProps, OverlayableProps, Overlay } from "../overlay/overlay";
+import { Icon } from "../icon/icon";
+import { BackdropProps, OverlayableProps, Overlay } from "../overlay/overlay";
 
 export enum DrawerSize {
     SMALL = "360px",
@@ -33,10 +34,7 @@ export enum DrawerSize {
     LARGE = "90%",
 }
 
-// eslint-disable-next-line deprecation/deprecation
-export type DrawerProps = IDrawerProps;
-/** @deprecated use DrawerProps */
-export interface IDrawerProps extends OverlayableProps, IBackdropProps, Props {
+export interface DrawerProps extends OverlayableProps, BackdropProps, Props {
     /**
      * Name of a Blueprint UI icon (or an icon element) to render in the
      * drawer's header. Note that the header will only be rendered if `title` is
@@ -60,11 +58,11 @@ export interface IDrawerProps extends OverlayableProps, IBackdropProps, Props {
 
     /**
      * Position of a drawer. All angled positions will be casted into pure positions
-     * (TOP, BOTTOM, LEFT or RIGHT).
+     * (top, bottom, left, or right).
      *
-     * @default Position.RIGHT
+     * @default "right"
      */
-    position?: Position;
+    position: Position;
 
     /**
      * Whether the application should return focus to the last active element in the
@@ -105,27 +103,17 @@ export interface IDrawerProps extends OverlayableProps, IBackdropProps, Props {
      * name here will require defining new CSS transition properties.
      */
     transitionName?: string;
-
-    /**
-     * Whether the drawer should appear with vertical styling.
-     * It will be ignored if `position` prop is set
-     *
-     * @default false
-     * @deprecated use `position` instead
-     */
-    vertical?: boolean;
 }
 
-@polyfill
-export class Drawer extends AbstractPureComponent2<DrawerProps> {
+export class Drawer extends AbstractPureComponent<DrawerProps> {
     public static displayName = `${DISPLAYNAME_PREFIX}.Drawer`;
 
     public static defaultProps: DrawerProps = {
         canOutsideClickClose: true,
         isOpen: false,
+        position: "right",
         shouldReturnFocusOnClose: true,
         style: {},
-        vertical: false,
     };
 
     /** @deprecated use DrawerSize.SMALL */
@@ -140,14 +128,12 @@ export class Drawer extends AbstractPureComponent2<DrawerProps> {
     private lastActiveElementBeforeOpened: Element | null | undefined;
 
     public render() {
-        // eslint-disable-next-line deprecation/deprecation
-        const { size, style, position, vertical } = this.props;
-        const realPosition = position ? getPositionIgnoreAngles(position) : undefined;
+        const { size, style, position } = this.props;
+        const realPosition = getPositionIgnoreAngles(position);
 
         const classes = classNames(
             Classes.DRAWER,
             {
-                [Classes.VERTICAL]: !realPosition && vertical,
                 [Classes.positionClass(realPosition) ?? ""]: true,
             },
             this.props.className,
@@ -158,7 +144,7 @@ export class Drawer extends AbstractPureComponent2<DrawerProps> {
                 ? style
                 : {
                       ...style,
-                      [(realPosition ? isPositionHorizontal(realPosition) : vertical) ? "height" : "width"]: size,
+                      [isPositionHorizontal(realPosition) ? "height" : "width"]: size,
                   };
         return (
             <Overlay
@@ -185,10 +171,6 @@ export class Drawer extends AbstractPureComponent2<DrawerProps> {
             }
         }
         if (props.position != null) {
-            // eslint-disable-next-line deprecation/deprecation
-            if (props.vertical) {
-                console.warn(Errors.DRAWER_VERTICAL_IS_IGNORED);
-            }
             if (props.position !== getPositionIgnoreAngles(props.position)) {
                 console.warn(Errors.DRAWER_ANGLE_POSITIONS_ARE_CASTED);
             }
@@ -203,7 +185,7 @@ export class Drawer extends AbstractPureComponent2<DrawerProps> {
                 <Button
                     aria-label="Close"
                     className={Classes.DIALOG_CLOSE_BUTTON}
-                    icon={<Icon icon="small-cross" size={IconSize.LARGE} />}
+                    icon={<SmallCross size={IconSize.LARGE} />}
                     minimal={true}
                     onClick={this.props.onClose}
                 />

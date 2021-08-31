@@ -15,16 +15,12 @@
  */
 
 import classNames from "classnames";
-import * as React from "react";
-import { polyfill } from "react-lifecycles-compat";
+import React from "react";
 
-import { AbstractPureComponent2, Classes } from "../../common";
+import { AbstractPureComponent, Classes } from "../../common";
 import { DISPLAYNAME_PREFIX, Props } from "../../common/props";
 
-// eslint-disable-next-line deprecation/deprecation
-export type CollapseProps = ICollapseProps;
-/** @deprecated use CollapseProps */
-export interface ICollapseProps extends Props {
+export interface CollapseProps extends Props {
     /**
      * Component to render as the root element.
      * Useful when rendering a `Collapse` inside a `<table>`, for instance.
@@ -59,7 +55,7 @@ export interface ICollapseProps extends Props {
     transitionDuration?: number;
 }
 
-export interface ICollapseState {
+export interface CollapseState {
     /** The state the element is currently in. */
     animationState: AnimationStates;
 
@@ -117,8 +113,7 @@ export enum AnimationStates {
     CLOSED,
 }
 
-@polyfill
-export class Collapse extends AbstractPureComponent2<CollapseProps, ICollapseState> {
+export class Collapse extends AbstractPureComponent<CollapseProps, CollapseState> {
     public static displayName = `${DISPLAYNAME_PREFIX}.Collapse`;
 
     public static defaultProps: CollapseProps = {
@@ -128,7 +123,7 @@ export class Collapse extends AbstractPureComponent2<CollapseProps, ICollapseSta
         transitionDuration: 200,
     };
 
-    public static getDerivedStateFromProps(props: CollapseProps, state: ICollapseState) {
+    public static getDerivedStateFromProps(props: CollapseProps, state: CollapseState) {
         const { isOpen } = props;
         const { animationState } = state;
 
@@ -163,7 +158,7 @@ export class Collapse extends AbstractPureComponent2<CollapseProps, ICollapseSta
         return null;
     }
 
-    public state: ICollapseState = {
+    public state: CollapseState = {
         animationState: this.props.isOpen ? AnimationStates.OPEN : AnimationStates.CLOSED,
         height: undefined,
         heightWhenOpen: undefined,

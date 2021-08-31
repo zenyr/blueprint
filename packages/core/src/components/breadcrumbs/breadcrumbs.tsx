@@ -15,20 +15,16 @@
  */
 
 import classNames from "classnames";
-import * as React from "react";
-import { polyfill } from "react-lifecycles-compat";
+import React from "react";
 
-import { AbstractPureComponent2, Boundary, Classes, Props, Position, removeNonHTMLProps } from "../../common";
+import { AbstractPureComponent, Boundary, Classes, Props, Position, removeNonHTMLProps } from "../../common";
 import { Menu } from "../menu/menu";
 import { MenuItem } from "../menu/menuItem";
 import { OverflowListProps, OverflowList } from "../overflow-list/overflowList";
-import { IPopoverProps, Popover } from "../popover/popover";
+import { PopoverProps, Popover } from "../popover/popover";
 import { Breadcrumb, BreadcrumbProps } from "./breadcrumb";
 
-// eslint-disable-next-line deprecation/deprecation
-export type BreadcrumbsProps = IBreadcrumbsProps;
-/** @deprecated use BreadcrumbsProps */
-export interface IBreadcrumbsProps extends Props {
+export interface BreadcrumbsProps extends Props {
     /**
      * Callback invoked to render visible breadcrumbs. Best practice is to
      * render a `<Breadcrumb>` element. If `currentBreadcrumbRenderer` is also
@@ -77,11 +73,10 @@ export interface IBreadcrumbsProps extends Props {
     /**
      * Props to spread to the `Popover` showing the overflow menu.
      */
-    popoverProps?: IPopoverProps;
+    popoverProps?: PopoverProps;
 }
 
-@polyfill
-export class Breadcrumbs extends AbstractPureComponent2<BreadcrumbsProps> {
+export class Breadcrumbs extends AbstractPureComponent<BreadcrumbsProps> {
     public static defaultProps: Partial<BreadcrumbsProps> = {
         collapseFrom: Boundary.START,
     };
@@ -114,20 +109,17 @@ export class Breadcrumbs extends AbstractPureComponent2<BreadcrumbsProps> {
             orderedItems = items.slice().reverse();
         }
 
-        /* eslint-disable deprecation/deprecation */
         return (
             <li>
                 <Popover
-                    position={position}
-                    disabled={orderedItems.length === 0}
                     content={<Menu>{orderedItems.map(this.renderOverflowBreadcrumb)}</Menu>}
+                    position={position}
                     {...this.props.popoverProps}
                 >
                     <span className={Classes.BREADCRUMBS_COLLAPSED} />
                 </Popover>
             </li>
         );
-        /* eslint-enable deprecation/deprecation */
     };
 
     private renderOverflowBreadcrumb = (props: BreadcrumbProps, index: number) => {

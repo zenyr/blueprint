@@ -15,11 +15,6 @@ Do not forget to include `table.css` on your page.
 npm install --save @blueprintjs/table
 ```
 
-<div class="@ns-callout @ns-large @ns-intent-success @ns-icon-star">
-
-There is a new version of the table component compatible with the new hotkeys API, see [Table2](#table/table2).
-</div>
-
 ### Features
 
 * High-scale, data-agnostic
@@ -35,16 +30,27 @@ There is a new version of the table component compatible with the new hotkeys AP
 To create a table, you must define the rows and columns. Add children to the `Table` to create columns,
 and change the `numRows` prop on the `Table` to set the number of rows.
 
-For example, this code creates an empty table with three columns and five rows:
+`Table` uses `HotkeysTarget` from `@blueprintjs/core` to bind some built-in hotkeys. For this feature
+to work, must configure a [HotkeysProvider](#core/context/hotkeys-provider) in your application.
+
+This code creates an empty table with three columns and five rows:
 
 ```tsx
+import { HotkeysProvider } from "@blueprintjs/core";
 import { Column, Table } from "@blueprintjs/table";
+import React from "react";
+import ReactDOM from "react-dom";
 
-<Table numRows={5}>
-    <Column />
-    <Column />
-    <Column />
-</Table>
+ReactDOM.render(
+    <HotkeysProvider>
+        <Table numRows={5}>
+            <Column />
+            <Column />
+            <Column />
+        </Table>
+    </HotkeysProvider>,
+    document.querySelector("#app"),
+);
 ```
 
 The table is **data-agnostic**. It doesn't store any data internally, so it is up to you to bind the table to your data.
@@ -52,21 +58,25 @@ The table is **data-agnostic**. It doesn't store any data internally, so it is u
 You can specify how the data is displayed by defining the `cellRenderer` prop on each `Column` component.
 This is useful when working with typed columnar data, like database results.
 
-For example, this creates a table that renders dollar values:
+For example, this creates a table that renders dollar and euro values:
 
 ```tsx
 import { Cell, Column, Table } from "@blueprintjs/table";
 
-const cellRenderer = (rowIndex: number) => {
-    return <Cell>{`$${(rowIndex * 10).toFixed(2)}`}</Cell>
-};
+const dollarCellRenderer = (rowIndex: number) => (
+    <Cell>{`$${(rowIndex * 10).toFixed(2)}`}</Cell>
+);
+const euroCellRenderer = (rowIndex: number) => (
+    <Cell>{`€${(rowIndex * 10 * 0.85).toFixed(2)}`}</Cell>
+);
+
 <Table numRows={10}>
-    <Column name="Dollars" cellRenderer={cellRenderer}/>
+    <Column name="Dollars" cellRenderer={dollarCellRenderer}/>
+    <Column name="Euros" cellRenderer={euroCellRenderer} />
 </Table>
 ```
 
 @reactExample TableDollarExample
 
-@page table2
 @page features
 @page api

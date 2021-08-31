@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Palantir Technologies, Inc. All rights reserved.
+ * Copyright 2021 Palantir Technologies, Inc. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,19 +15,17 @@
  */
 
 import classNames from "classnames";
-import * as React from "react";
-import { polyfill } from "react-lifecycles-compat";
+import React from "react";
 
-import { AbstractPureComponent2, Classes } from "../../common";
-import { DISPLAYNAME_PREFIX, IntentProps } from "../../common/props";
+import { DISPLAYNAME_PREFIX, IntentProps } from "../../common";
+import * as Classes from "../../common/classes";
 // eslint-disable-next-line import/no-cycle
 import { Popover, PopoverInteractionKind } from "../popover/popover";
-import { IPopoverSharedProps } from "../popover/popoverSharedProps";
+import { TOOLTIP_ARROW_SVG_SIZE } from "../popover/popoverArrow";
+import { PopoverSharedProps } from "../popover/popoverSharedProps";
+import { TooltipContext, TooltipContextState, TooltipProvider } from "../popover/tooltipContext";
 
-// eslint-disable-next-line deprecation/deprecation
-export type TooltipProps = ITooltipProps;
-/** @deprecated use TooltipProps */
-export interface ITooltipProps extends IPopoverSharedProps, IntentProps {
+export interface TooltipProps<TProps = React.HTMLProps<HTMLElement>> extends PopoverSharedProps<TProps>, IntentProps {
     /**
      * The content that will be displayed inside of the tooltip.
      */
@@ -71,9 +69,7 @@ export interface ITooltipProps extends IPopoverSharedProps, IntentProps {
     transitionDuration?: number;
 }
 
-/** @deprecated use { Tooltip2 } from "@blueprintjs/popover2" */
-@polyfill
-export class Tooltip extends AbstractPureComponent2<TooltipProps> {
+export class Tooltip<T> extends React.PureComponent<TooltipProps<T>> {
     public static displayName = `${DISPLAYNAME_PREFIX}.Tooltip`;
 
     public static defaultProps: Partial<TooltipProps> = {
@@ -83,11 +79,27 @@ export class Tooltip extends AbstractPureComponent2<TooltipProps> {
         transitionDuration: 100,
     };
 
-    // eslint-disable-next-line deprecation/deprecation
-    private popover: Popover | null = null;
+    private popover: Popover<T> | null = null;
 
     public render() {
-        const { children, intent, popoverClassName, ...restProps } = this.props;
+        // if we have an ancestor TooltipContext, we should take its state into account in this render path,
+        // it was likely created by a parent ContextMenu2
+        return (
+            <TooltipContext.Consumer>
+                {([state]) => <TooltipProvider {...state}>{this.renderPopover}</TooltipProvider>}
+            </TooltipContext.Consumer>
+        );
+    }
+
+    public reposition() {
+        if (this.popover != null) {
+            this.popover.reposition();
+        }
+    }
+
+    // any descendant ContextMenu2s may update this ctxState
+    private renderPopover = (ctxState: TooltipContextState) => {
+        const { children, disabled, intent, popoverClassName, ...restProps } = this.props;
         const classes = classNames(
             Classes.TOOLTIP,
             { [Classes.MINIMAL]: this.props.minimal },
@@ -96,13 +108,22 @@ export class Tooltip extends AbstractPureComponent2<TooltipProps> {
         );
 
         return (
-            /* eslint-disable deprecation/deprecation */
             <Popover
                 interactionKind={PopoverInteractionKind.HOVER_TARGET_ONLY}
-                modifiers={{ arrow: { enabled: !this.props.minimal } }}
+                modifiers={{
+                    arrow: {
+                        enabled: !this.props.minimal,
+                    },
+                    offset: {
+                        options: {
+                            offset: [0, TOOLTIP_ARROW_SVG_SIZE / 2],
+                        },
+                    },
+                }}
                 {...restProps}
                 autoFocus={false}
                 canEscapeKeyClose={false}
+                disabled={ctxState.forceDisabled ?? disabled}
                 enforceFocus={false}
                 lazy={true}
                 popoverClassName={classes}
@@ -112,11 +133,5 @@ export class Tooltip extends AbstractPureComponent2<TooltipProps> {
                 {children}
             </Popover>
         );
-    }
-
-    public reposition() {
-        if (this.popover != null) {
-            this.popover.reposition();
-        }
-    }
+    };
 }

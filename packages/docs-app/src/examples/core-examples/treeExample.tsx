@@ -15,11 +15,10 @@
  */
 
 import { cloneDeep } from "lodash-es";
-import * as React from "react";
+import React, { useCallback, useReducer } from "react";
 
-import { Classes, Icon, Intent, TreeNodeInfo, Tree } from "@blueprintjs/core";
-import { Example, IExampleProps } from "@blueprintjs/docs-theme";
-import { Classes as Popover2Classes, ContextMenu2, Tooltip2 } from "@blueprintjs/popover2";
+import { Classes, ContextMenu, Icon, Intent, Tooltip, TreeNodeInfo, Tree } from "@blueprintjs/core";
+import { Example, ExampleProps } from "@blueprintjs/docs-theme";
 
 type NodePath = number[];
 
@@ -62,31 +61,28 @@ function treeExampleReducer(state: TreeNodeInfo[], action: TreeAction) {
     }
 }
 
-export const TreeExample: React.FC<IExampleProps> = props => {
-    const [nodes, dispatch] = React.useReducer(treeExampleReducer, INITIAL_STATE);
+export const TreeExample: React.FC<ExampleProps> = props => {
+    const [nodes, dispatch] = useReducer(treeExampleReducer, INITIAL_STATE);
 
-    const handleNodeClick = React.useCallback(
-        (node: TreeNodeInfo, nodePath: NodePath, e: React.MouseEvent<HTMLElement>) => {
-            const originallySelected = node.isSelected;
-            if (!e.shiftKey) {
-                dispatch({ type: "DESELECT_ALL" });
-            }
-            dispatch({
-                payload: { path: nodePath, isSelected: originallySelected == null ? true : !originallySelected },
-                type: "SET_IS_SELECTED",
-            });
-        },
-        [],
-    );
+    const handleNodeClick = useCallback((node: TreeNodeInfo, nodePath: NodePath, e: React.MouseEvent<HTMLElement>) => {
+        const originallySelected = node.isSelected;
+        if (!e.shiftKey) {
+            dispatch({ type: "DESELECT_ALL" });
+        }
+        dispatch({
+            payload: { path: nodePath, isSelected: originallySelected == null ? true : !originallySelected },
+            type: "SET_IS_SELECTED",
+        });
+    }, []);
 
-    const handleNodeCollapse = React.useCallback((_node: TreeNodeInfo, nodePath: NodePath) => {
+    const handleNodeCollapse = useCallback((_node: TreeNodeInfo, nodePath: NodePath) => {
         dispatch({
             payload: { path: nodePath, isExpanded: false },
             type: "SET_IS_EXPANDED",
         });
     }, []);
 
-    const handleNodeExpand = React.useCallback((_node: TreeNodeInfo, nodePath: NodePath) => {
+    const handleNodeExpand = useCallback((_node: TreeNodeInfo, nodePath: NodePath) => {
         dispatch({
             payload: { path: nodePath, isExpanded: true },
             type: "SET_IS_EXPANDED",
@@ -106,7 +102,7 @@ export const TreeExample: React.FC<IExampleProps> = props => {
     );
 };
 
-const contentSizing = { popoverProps: { popoverClassName: Popover2Classes.POPOVER2_CONTENT_SIZING } };
+const contentSizing = { popoverProps: { popoverClassName: Classes.POPOVER_CONTENT_SIZING } };
 
 /* tslint:disable:object-literal-sort-keys so childNodes can come last */
 const INITIAL_STATE: TreeNodeInfo[] = [
@@ -115,9 +111,9 @@ const INITIAL_STATE: TreeNodeInfo[] = [
         hasCaret: true,
         icon: "folder-close",
         label: (
-            <ContextMenu2 {...contentSizing} content={<div>Hello there!</div>}>
+            <ContextMenu {...contentSizing} content={<div>Hello there!</div>}>
                 Folder 0
-            </ContextMenu2>
+            </ContextMenu>
         ),
     },
     {
@@ -125,11 +121,11 @@ const INITIAL_STATE: TreeNodeInfo[] = [
         icon: "folder-close",
         isExpanded: true,
         label: (
-            <ContextMenu2 {...contentSizing} content={<div>Hello there!</div>}>
-                <Tooltip2 content="I'm a folder <3" placement="right">
+            <ContextMenu {...contentSizing} content={<div>Hello there!</div>}>
+                <Tooltip content="I'm a folder <3" placement="right">
                     Folder 1
-                </Tooltip2>
-            </ContextMenu2>
+                </Tooltip>
+            </ContextMenu>
         ),
         childNodes: [
             {
@@ -137,9 +133,9 @@ const INITIAL_STATE: TreeNodeInfo[] = [
                 icon: "document",
                 label: "Item 0",
                 secondaryLabel: (
-                    <Tooltip2 content="An eye!">
+                    <Tooltip content="An eye!">
                         <Icon icon="eye-open" />
-                    </Tooltip2>
+                    </Tooltip>
                 ),
             },
             {
@@ -152,11 +148,11 @@ const INITIAL_STATE: TreeNodeInfo[] = [
                 hasCaret: true,
                 icon: "folder-close",
                 label: (
-                    <ContextMenu2 {...contentSizing} content={<div>Hello there!</div>}>
-                        <Tooltip2 content="foo" placement="right">
+                    <ContextMenu {...contentSizing} content={<div>Hello there!</div>}>
+                        <Tooltip content="foo" placement="right">
                             Folder 2
-                        </Tooltip2>
-                    </ContextMenu2>
+                        </Tooltip>
+                    </ContextMenu>
                 ),
                 childNodes: [
                     { id: 5, label: "No-Icon Item" },
@@ -166,9 +162,9 @@ const INITIAL_STATE: TreeNodeInfo[] = [
                         hasCaret: true,
                         icon: "folder-close",
                         label: (
-                            <ContextMenu2 {...contentSizing} content={<div>Hello there!</div>}>
+                            <ContextMenu {...contentSizing} content={<div>Hello there!</div>}>
                                 Folder 3
-                            </ContextMenu2>
+                            </ContextMenu>
                         ),
                         childNodes: [
                             { id: 8, icon: "document", label: "Item 0" },

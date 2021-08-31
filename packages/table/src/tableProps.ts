@@ -16,26 +16,23 @@
 
 import type { Props } from "@blueprintjs/core";
 
-import type { IColumnProps } from "./column";
-import type { IFocusedCellCoordinates } from "./common/cell";
-import type { IColumnIndices, IRowIndices } from "./common/grid";
+import type { ColumnProps } from "./column";
+import type { FocusedCellCoordinates } from "./common/cell";
+import type { ColumnIndices, RowIndices } from "./common/grid";
 import type { RenderMode } from "./common/renderMode";
-import type { IColumnWidths } from "./headers/columnHeader";
-import type { RowHeaderRenderer, IRowHeights } from "./headers/rowHeader";
-import type { IContextMenuRenderer } from "./interactions/menus";
-import type { IIndexedResizeCallback } from "./interactions/resizable";
-import type { ISelectedRegionTransform } from "./interactions/selectable";
+import type { ColumnWidths } from "./headers/columnHeader";
+import type { RowHeaderRenderer, RowHeights } from "./headers/rowHeader";
+import type { ContextMenuRenderer } from "./interactions/menus";
+import type { IndexedResizeCallback } from "./interactions/resizable";
+import type { SelectedRegionTransform } from "./interactions/selectable";
 import type { Region, StyledRegionGroup, RegionCardinality, TableLoadingOption } from "./regions";
 
-// eslint-disable-next-line deprecation/deprecation
-export type TableProps = ITableProps;
-/** @deprecated use TableProps */
-export interface ITableProps extends Props, IRowHeights, IColumnWidths {
+export interface TableProps extends Props, RowHeights, ColumnWidths {
     /**
      * The children of a `Table` component, which must be React elements
-     * that use `IColumnProps`.
+     * that use `ColumnProps`.
      */
-    children?: React.ReactElement<IColumnProps> | Array<React.ReactElement<IColumnProps>>;
+    children?: React.ReactElement<ColumnProps> | Array<React.ReactElement<ColumnProps>>;
 
     /**
      * A sparse number array with a length equal to the number of columns. Any
@@ -52,7 +49,14 @@ export interface ITableProps extends Props, IRowHeights, IColumnWidths {
      * contain all selected regions. Otherwise it will have one `Region` that
      * represents the clicked cell.
      */
-    bodyContextMenuRenderer?: IContextMenuRenderer;
+    bodyContextMenuRenderer?: ContextMenuRenderer;
+
+    /**
+     * Whether the body context menu is enabled.
+     *
+     * @default true if bodyContextMenuRenderer is defined
+     */
+    enableBodyContextMenu?: boolean;
 
     /**
      * If `true`, adds an interaction bar on top of all column header cells, and
@@ -128,7 +132,7 @@ export interface ITableProps extends Props, IRowHeights, IColumnWidths {
      * the focused cell to controlled mode, meaning you are in charge of
      * setting the focus in response to events in the `onFocusedCell` callback.
      */
-    focusedCell?: IFocusedCellCoordinates;
+    focusedCell?: FocusedCellCoordinates;
 
     /**
      * If `true`, selection state changes will cause the component to re-render.
@@ -185,7 +189,7 @@ export interface ITableProps extends Props, IRowHeights, IColumnWidths {
      * If resizing is enabled, this callback will be invoked when the user
      * finishes drag-resizing a column.
      */
-    onColumnWidthChanged?: IIndexedResizeCallback;
+    onColumnWidthChanged?: IndexedResizeCallback;
 
     /**
      * An optional callback invoked when all cells in view have completely rendered.
@@ -207,13 +211,13 @@ export interface ITableProps extends Props, IRowHeights, IColumnWidths {
     /**
      * A callback called when the focus is changed in the table.
      */
-    onFocusedCell?: (focusedCell: IFocusedCellCoordinates) => void;
+    onFocusedCell?: (focusedCell: FocusedCellCoordinates) => void;
 
     /**
      * If resizing is enabled, this callback will be invoked when the user
      * finishes drag-resizing a row.
      */
-    onRowHeightChanged?: IIndexedResizeCallback;
+    onRowHeightChanged?: IndexedResizeCallback;
 
     /**
      * If reordering is enabled, this callback will be invoked when the user finishes
@@ -229,7 +233,7 @@ export interface ITableProps extends Props, IRowHeights, IColumnWidths {
     /**
      * A callback called when the visible cell indices change in the table.
      */
-    onVisibleCellsChange?: (rowIndices: IRowIndices, columnIndices: IColumnIndices) => void;
+    onVisibleCellsChange?: (rowIndices: RowIndices, columnIndices: ColumnIndices) => void;
 
     /**
      * Dictates how cells should be rendered. Supported modes are:
@@ -276,7 +280,7 @@ export interface ITableProps extends Props, IRowHeights, IColumnWidths {
      * `Region`s while maintaining the existing multi-select and meta-click
      * functionality.
      */
-    selectedRegionTransform?: ISelectedRegionTransform;
+    selectedRegionTransform?: SelectedRegionTransform;
 
     /**
      * A `SelectionModes` enum value indicating the selection mode. You may

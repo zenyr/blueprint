@@ -16,7 +16,7 @@
 
 /* eslint-disable max-classes-per-file */
 
-import * as React from "react";
+import React from "react";
 
 import {
     Boundary,
@@ -30,9 +30,9 @@ import {
     RadioGroup,
     Slider,
 } from "@blueprintjs/core";
-import { Example, handleStringChange, IExampleProps } from "@blueprintjs/docs-theme";
+import { Example, handleStringChange, ExampleProps } from "@blueprintjs/docs-theme";
 
-export interface IBreadcrumbsExampleState {
+export interface BreadcrumbsExampleState {
     collapseFrom: Boundary;
     renderCurrentAsInput: boolean;
     alwaysRenderOverflow: boolean;
@@ -58,8 +58,8 @@ const ITEMS_FOR_ALWAYS_RENDER: BreadcrumbProps[] = [
     { icon: "document", text: "image.jpg", current: true },
 ];
 
-export class BreadcrumbsExample extends React.PureComponent<IExampleProps, IBreadcrumbsExampleState> {
-    public state: IBreadcrumbsExampleState = {
+export class BreadcrumbsExample extends React.PureComponent<ExampleProps, BreadcrumbsExampleState> {
+    public state: BreadcrumbsExampleState = {
         alwaysRenderOverflow: false,
         collapseFrom: Boundary.START,
         renderCurrentAsInput: false,
@@ -139,6 +139,7 @@ export class BreadcrumbsExample extends React.PureComponent<IExampleProps, IBrea
     };
 }
 
+/* eslint-disable  max-classes-per-file */
 class BreadcrumbInput extends React.PureComponent<BreadcrumbProps & { defaultValue: string | undefined }> {
     public state = {
         text: this.props.defaultValue ?? "",

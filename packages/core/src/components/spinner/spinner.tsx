@@ -15,10 +15,9 @@
  */
 
 import classNames from "classnames";
-import * as React from "react";
-import { polyfill } from "react-lifecycles-compat";
+import React from "react";
 
-import { AbstractPureComponent2, Classes } from "../../common";
+import { AbstractPureComponent, Classes } from "../../common";
 import { SPINNER_WARN_CLASSES_SIZE } from "../../common/errors";
 import { DISPLAYNAME_PREFIX, IntentProps, Props } from "../../common/props";
 import { clamp } from "../../common/utils";
@@ -42,10 +41,7 @@ const MIN_SIZE = 10;
 const STROKE_WIDTH = 4;
 const MIN_STROKE_WIDTH = 16;
 
-// eslint-disable-next-line deprecation/deprecation
-export type SpinnerProps = ISpinnerProps;
-/** @deprecated use SpinnerProps */
-export interface ISpinnerProps extends Props, IntentProps {
+export interface SpinnerProps extends Props, IntentProps {
     /**
      * Width and height of the spinner in pixels. The size cannot be less than
      * 10px.
@@ -75,8 +71,7 @@ export interface ISpinnerProps extends Props, IntentProps {
     value?: number;
 }
 
-@polyfill
-export class Spinner extends AbstractPureComponent2<SpinnerProps> {
+export class Spinner extends AbstractPureComponent<SpinnerProps> {
     public static displayName = `${DISPLAYNAME_PREFIX}.Spinner`;
 
     /** @deprecated use SpinnerSize.SMALL */

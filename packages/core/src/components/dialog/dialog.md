@@ -31,7 +31,7 @@ The children you provide to this component are rendered as contents inside the
 `Classes.DIALOG_BODY` that contains the body content and a child with
 `Classes.DIALOG_FOOTER` that contains the action buttons.
 
-@interface IDialogProps
+@interface DialogProps
 
 @### CSS
 
@@ -58,7 +58,7 @@ The children you provide to this component are rendered as contents inside the
 Children of the `MultistepDialog` are filtered down to only `DialogStep` components and rendered in order.
 `DialogStep` children are managed by the component; clicking one will change selection.
 
-@interface IMultistepDialogProps
+@interface MultistepDialogProps
 
 @### DialogStep
 
@@ -67,4 +67,4 @@ parent `MultistepDialog` wrapper. `DialogStep` title text can be set via the `ti
 
 The associated step panel will be visible when the `DialogStep` is selected.
 
-@interface IDialogStepProps
+@interface DialogStepProps

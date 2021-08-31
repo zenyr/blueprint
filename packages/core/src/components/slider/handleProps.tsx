@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import * as React from "react";
+import React from "react";
 
 import { Intent, Props } from "../../common";
 
@@ -47,10 +47,7 @@ export const HandleInteractionKind = {
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export type HandleInteractionKind = typeof HandleInteractionKind[keyof typeof HandleInteractionKind];
 
-// eslint-disable-next-line deprecation/deprecation
-export type HandleProps = IHandleProps;
-/** @deprecated use HandleProps */
-export interface IHandleProps extends Props {
+export interface HandleProps extends Props {
     /** Numeric value of this handle. */
     value: number;
 

@@ -15,25 +15,21 @@
  */
 
 import classNames from "classnames";
-import * as React from "react";
+import React from "react";
 import DayPicker, { CaptionElementProps, DayModifiers, NavbarElementProps } from "react-day-picker";
-import { polyfill } from "react-lifecycles-compat";
 
-import { AbstractPureComponent2, Button, DISPLAYNAME_PREFIX, Divider, Props } from "@blueprintjs/core";
+import { AbstractPureComponent, Button, DISPLAYNAME_PREFIX, Divider, Props } from "@blueprintjs/core";
 
 import * as Classes from "./common/classes";
 import * as DateUtils from "./common/dateUtils";
 import * as Errors from "./common/errors";
 import { DatePickerCaption } from "./datePickerCaption";
-import { getDefaultMaxDate, getDefaultMinDate, IDatePickerBaseProps } from "./datePickerCore";
+import { getDefaultMaxDate, getDefaultMinDate, DatePickerBaseProps } from "./datePickerCore";
 import { DatePickerNavbar } from "./datePickerNavbar";
 import { DatePickerShortcut, DateRangeShortcut, Shortcuts } from "./shortcuts";
 import { TimePicker } from "./timePicker";
 
-// eslint-disable-next-line deprecation/deprecation
-export type DatePickerProps = IDatePickerProps;
-/** @deprecated use DatePickerProps */
-export interface IDatePickerProps extends IDatePickerBaseProps, Props {
+export interface DatePickerProps extends DatePickerBaseProps, Props {
     /**
      * Allows the user to clear the selection by clicking the currently selected day.
      *
@@ -102,7 +98,7 @@ export interface IDatePickerProps extends IDatePickerBaseProps, Props {
     value?: Date | null;
 }
 
-export interface IDatePickerState {
+export interface DatePickerState {
     displayMonth: number;
     displayYear: number;
     selectedDay: number | null;
@@ -110,8 +106,7 @@ export interface IDatePickerState {
     selectedShortcutIndex?: number;
 }
 
-@polyfill
-export class DatePicker extends AbstractPureComponent2<DatePickerProps, IDatePickerState> {
+export class DatePicker extends AbstractPureComponent<DatePickerProps, DatePickerState> {
     public static defaultProps: DatePickerProps = {
         canClearSelection: true,
         clearButtonText: "Clear",
@@ -129,8 +124,8 @@ export class DatePicker extends AbstractPureComponent2<DatePickerProps, IDatePic
 
     private ignoreNextMonthChange = false;
 
-    public constructor(props: DatePickerProps, context?: any) {
-        super(props, context);
+    public constructor(props: DatePickerProps) {
+        super(props);
         const value = getInitialValue(props);
         const initialMonth = getInitialMonth(props, value);
         this.state = {
@@ -176,7 +171,7 @@ export class DatePicker extends AbstractPureComponent2<DatePickerProps, IDatePic
         );
     }
 
-    public componentDidUpdate(prevProps: DatePickerProps, prevState: IDatePickerState) {
+    public componentDidUpdate(prevProps: DatePickerProps, prevState: DatePickerState) {
         super.componentDidUpdate(prevProps, prevState);
         const { value } = this.props;
         if (value === prevProps.value) {

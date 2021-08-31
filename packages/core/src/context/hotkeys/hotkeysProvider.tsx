@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import * as React from "react";
+import React, { createContext } from "react";
 
 import { shallowCompareKeys } from "../../common/utils";
-import { HotkeysDialog2, HotkeysDialog2Props } from "../../components/hotkeys/hotkeysDialog2";
+import { HotkeysDialog, HotkeysDialogProps } from "../../components/hotkeys/hotkeysDialog";
 import { HotkeyConfig } from "../../hooks";
 
 interface HotkeysContextState {
@@ -37,7 +37,6 @@ export type HotkeysContextInstance = [HotkeysContextState, React.Dispatch<Hotkey
 const initialHotkeysState: HotkeysContextState = { hotkeys: [], isDialogOpen: false };
 const noOpDispatch: React.Dispatch<HotkeysAction> = () => null;
 
-// N.B. we can remove this optional call guard once Blueprint depends on React 16
 /**
  * A React context used to register and deregister hotkeys as components are mounted and unmounted in an application.
  * Users should take care to make sure that only _one_ of these is instantiated and used within an application, especially
@@ -48,7 +47,7 @@ const noOpDispatch: React.Dispatch<HotkeysAction> = () => null;
  *
  * For more information, see the [HotkeysProvider documentation](https://blueprintjs.com/docs/#core/context/hotkeys-provider).
  */
-export const HotkeysContext = React.createContext?.<HotkeysContextInstance>([initialHotkeysState, noOpDispatch]);
+export const HotkeysContext = createContext<HotkeysContextInstance>([initialHotkeysState, noOpDispatch]);
 
 const hotkeysReducer = (state: HotkeysContextState, action: HotkeysAction) => {
     switch (action.type) {
@@ -87,7 +86,7 @@ export interface HotkeysProviderProps {
     children: React.ReactChild;
 
     /** Optional props to customize the rendered hotkeys dialog. */
-    dialogProps?: Partial<Omit<HotkeysDialog2Props, "hotkeys">>;
+    dialogProps?: Partial<Omit<HotkeysDialogProps, "hotkeys">>;
 
     /** If provided, this dialog render function will be used in place of the default implementation. */
     renderDialog?: (state: HotkeysContextState, contextActions: { handleDialogClose: () => void }) => JSX.Element;
@@ -105,7 +104,7 @@ export const HotkeysProvider = ({ children, dialogProps, renderDialog, value }: 
     const handleDialogClose = React.useCallback(() => dispatch({ type: "CLOSE_DIALOG" }), []);
 
     const dialog = renderDialog?.(state, { handleDialogClose }) ?? (
-        <HotkeysDialog2
+        <HotkeysDialog
             {...dialogProps}
             isOpen={state.isDialogOpen}
             hotkeys={state.hotkeys}

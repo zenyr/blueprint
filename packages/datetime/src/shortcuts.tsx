@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import * as React from "react";
+import React from "react";
 
 import { Classes, Menu, MenuItem } from "@blueprintjs/core";
 
@@ -23,7 +23,7 @@ import { DateRange } from "./common/dateRange";
 import { clone, isDayRangeInRange } from "./common/dateUtils";
 import { TimePrecision } from "./timePicker";
 
-export interface IDateShortcutBase {
+export interface DateShortcutBase {
     /** Shortcut label that appears in the list. */
     label: string;
 
@@ -38,10 +38,7 @@ export interface IDateShortcutBase {
     includeTime?: boolean;
 }
 
-// eslint-disable-next-line deprecation/deprecation
-export type DateRangeShortcut = IDateRangeShortcut;
-/** @deprecated use DateRangeShortcut */
-export interface IDateRangeShortcut extends IDateShortcutBase {
+export interface DateRangeShortcut extends DateShortcutBase {
     /**
      * Date range represented by this shortcut. Note that time components of a
      * shortcut are ignored by default; set `includeTime: true` to respect them.
@@ -49,10 +46,7 @@ export interface IDateRangeShortcut extends IDateShortcutBase {
     dateRange: DateRange;
 }
 
-// eslint-disable-next-line deprecation/deprecation
-export type DatePickerShortcut = IDatePickerShortcut;
-/** @deprecated use DatePickerShortcut */
-export interface IDatePickerShortcut extends IDateShortcutBase {
+export interface DatePickerShortcut extends DateShortcutBase {
     /**
      * Date represented by this shortcut. Note that time components of a
      * shortcut are ignored by default; set `includeTime: true` to respect them.
@@ -60,7 +54,7 @@ export interface IDatePickerShortcut extends IDateShortcutBase {
     date: Date;
 }
 
-export interface IShortcutsProps {
+export interface ShortcutsProps {
     allowSingleDayRange: boolean;
     minDate: Date;
     maxDate: Date;
@@ -77,8 +71,8 @@ export interface IShortcutsProps {
     useSingleDateShortcuts?: boolean;
 }
 
-export class Shortcuts extends React.PureComponent<IShortcutsProps> {
-    public static defaultProps: Partial<IShortcutsProps> = {
+export class Shortcuts extends React.PureComponent<ShortcutsProps> {
+    public static defaultProps: Partial<ShortcutsProps> = {
         selectedShortcutIndex: -1,
     };
 

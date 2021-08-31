@@ -16,10 +16,10 @@
 
 import { assert } from "chai";
 import { mount } from "enzyme";
-import * as React from "react";
+import React from "react";
 
 import { Classes } from "../../src";
-import { Checkbox, IControlProps, Radio, Switch } from "../../src/components/forms/controls";
+import { Checkbox, ControlProps, Radio, Switch } from "../../src/components/forms/controls";
 
 type ControlType = typeof Checkbox | typeof Radio | typeof Switch;
 
@@ -79,7 +79,7 @@ describe("Controls:", () => {
     controlsTests(Radio, "radio", Classes.RADIO);
 
     function controlsTests(classType: ControlType, propType: string, className: string, moreTests?: () => void) {
-        describe(`<${classType.displayName.split(".")[1]}>`, () => {
+        describe(`<${classType.displayName!.split(".")[1]}>`, () => {
             it(`renders .${Classes.CONTROL}.${className}`, () => {
                 const control = mountControl();
                 assert.isTrue(control.find(`.${Classes.CONTROL}`).hasClass(className));
@@ -111,7 +111,7 @@ describe("Controls:", () => {
             }
         });
 
-        function mountControl(props?: IControlProps, ...children: React.ReactNode[]) {
+        function mountControl(props?: ControlProps, ...children: React.ReactNode[]) {
             return mount(React.createElement(classType, props, children));
         }
     }

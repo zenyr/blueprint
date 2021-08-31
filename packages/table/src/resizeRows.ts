@@ -15,31 +15,31 @@
  */
 
 import type { Rect } from "./common";
-import type { Grid, ICellMapper } from "./common/grid";
+import type { Grid, CellMapper } from "./common/grid";
 import { Utils } from "./common/utils";
-import { Locator } from "./locator";
+import { Locator, LocatorImpl } from "./locator";
 
 export interface IResizeRowsByApproximateHeightOptions {
     /**
      * Approximate width (in pixels) of an average character of text.
      */
-    getApproximateCharWidth?: number | ICellMapper<number>;
+    getApproximateCharWidth?: number | CellMapper<number>;
 
     /**
      * Approximate height (in pixels) of an average line of text.
      */
-    getApproximateLineHeight?: number | ICellMapper<number>;
+    getApproximateLineHeight?: number | CellMapper<number>;
 
     /**
      * Sum of horizontal paddings (in pixels) from the left __and__ right sides
      * of the cell.
      */
-    getCellHorizontalPadding?: number | ICellMapper<number>;
+    getCellHorizontalPadding?: number | CellMapper<number>;
 
     /**
      * Number of extra lines to add in case the calculation is imperfect.
      */
-    getNumBufferLines?: number | ICellMapper<number>;
+    getNumBufferLines?: number | CellMapper<number>;
 }
 
 export interface IResizeRowsByApproximateHeightResolvedOptions {
@@ -54,7 +54,7 @@ export interface IResizeRowsByApproximateHeightResolvedOptions {
 const resizeRowsByApproximateHeightDefaults: Record<keyof IResizeRowsByApproximateHeightOptions, number> = {
     getApproximateCharWidth: 8,
     getApproximateLineHeight: 18,
-    getCellHorizontalPadding: 2 * Locator.CELL_HORIZONTAL_PADDING,
+    getCellHorizontalPadding: 2 * LocatorImpl.CELL_HORIZONTAL_PADDING,
     getNumBufferLines: 1,
 };
 
@@ -99,7 +99,7 @@ function resolveResizeRowsByApproximateHeightOptions(
 export function resizeRowsByApproximateHeight(
     numRows: number,
     columnWidths: number[],
-    getCellText: ICellMapper<string>,
+    getCellText: CellMapper<string>,
     options?: IResizeRowsByApproximateHeightOptions,
 ) {
     const numColumns = columnWidths.length;

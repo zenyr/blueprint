@@ -19,7 +19,17 @@ import { Elevation } from "./elevation";
 import { Intent } from "./intent";
 import { Position } from "./position";
 
-const NS = process.env.BLUEPRINT_NAMESPACE || process.env.REACT_APP_BLUEPRINT_NAMESPACE || "bp3";
+// injected by webpack.DefinePlugin
+declare let BLUEPRINT_NAMESPACE: string | undefined;
+declare let REACT_APP_BLUEPRINT_NAMESPACE: string | undefined;
+
+let NS = "bp4";
+
+if (typeof BLUEPRINT_NAMESPACE !== "undefined") {
+    NS = BLUEPRINT_NAMESPACE;
+} else if (typeof REACT_APP_BLUEPRINT_NAMESPACE !== "undefined") {
+    NS = REACT_APP_BLUEPRINT_NAMESPACE;
+}
 
 // modifiers
 export const ACTIVE = `${NS}-active`;
@@ -108,10 +118,10 @@ export const CARD = `${NS}-card`;
 export const COLLAPSE = `${NS}-collapse`;
 export const COLLAPSE_BODY = `${COLLAPSE}-body`;
 
-export const COLLAPSIBLE_LIST = `${NS}-collapse-list`;
-
 export const CONTEXT_MENU = `${NS}-context-menu`;
-export const CONTEXT_MENU_POPOVER_TARGET = `${CONTEXT_MENU}-popover-target`;
+export const CONTEXT_MENU_VIRTUAL_TARGET = `${CONTEXT_MENU}-virtual-target`;
+export const CONTEXT_MENU_POPOVER = `${CONTEXT_MENU}-popover`;
+export const CONTEXT_MENU_BACKDROP = `${CONTEXT_MENU}-backdrop`;
 
 export const CONTROL_GROUP = `${NS}-control-group`;
 
@@ -145,8 +155,6 @@ export const EDITABLE_TEXT_PLACEHOLDER = `${EDITABLE_TEXT}-placeholder`;
 export const FLEX_EXPANDER = `${NS}-flex-expander`;
 
 export const HTML_SELECT = `${NS}-html-select`;
-/** @deprecated prefer `<HTMLSelect>` component */
-export const SELECT = `${NS}-select`;
 
 export const HTML_TABLE = `${NS}-html-table`;
 export const HTML_TABLE_BORDERED = `${HTML_TABLE}-bordered`;
@@ -224,23 +232,18 @@ export const PANEL_STACK_HEADER = `${PANEL_STACK}-header`;
 export const PANEL_STACK_HEADER_BACK = `${PANEL_STACK}-header-back`;
 export const PANEL_STACK_VIEW = `${PANEL_STACK}-view`;
 
-export const PANEL_STACK2 = `${NS}-panel-stack2`;
-export const PANEL_STACK2_HEADER = `${PANEL_STACK}-header`;
-export const PANEL_STACK2_HEADER_BACK = `${PANEL_STACK}-header-back`;
-export const PANEL_STACK2_VIEW = `${PANEL_STACK}-view`;
-
 export const POPOVER = `${NS}-popover`;
 export const POPOVER_ARROW = `${POPOVER}-arrow`;
 export const POPOVER_BACKDROP = `${POPOVER}-backdrop`;
 export const POPOVER_CAPTURING_DISMISS = `${POPOVER}-capturing-dismiss`;
 export const POPOVER_CONTENT = `${POPOVER}-content`;
+export const POPOVER_CONTENT_PLACEMENT = `${POPOVER}-placement`;
 export const POPOVER_CONTENT_SIZING = `${POPOVER_CONTENT}-sizing`;
 export const POPOVER_DISMISS = `${POPOVER}-dismiss`;
 export const POPOVER_DISMISS_OVERRIDE = `${POPOVER_DISMISS}-override`;
 export const POPOVER_OPEN = `${POPOVER}-open`;
 export const POPOVER_TARGET = `${POPOVER}-target`;
-export const POPOVER_WRAPPER = `${POPOVER}-wrapper`;
-export const TRANSITION_CONTAINER = `${NS}-transition-container`;
+export const POPOVER_TRANSITION_CONTAINER = `${POPOVER}-transition-container`;
 
 export const PROGRESS_BAR = `${NS}-progress-bar`;
 export const PROGRESS_METER = `${NS}-progress-meter`;
@@ -303,14 +306,12 @@ export const TREE_NODE_SELECTED = `${TREE_NODE}-selected`;
 export const TREE_ROOT = `${NS}-tree-root`;
 
 export const ICON = `${NS}-icon`;
-/** @deprecated use <Icon> components and iconName prop APIs instead */
 export const ICON_STANDARD = `${ICON}-standard`;
-/** @deprecated use <Icon> components and iconName prop APIs instead */
 export const ICON_LARGE = `${ICON}-large`;
 
 /**
  * Returns the namespace prefix for all Blueprint CSS classes.
- * Customize this namespace at build time with the `process.env.BLUEPRINT_NAMESPACE` environment variable.
+ * Customize this namespace at build time by defining it with `webpack.DefinePlugin`.
  */
 export function getClassNamespace() {
     return NS;

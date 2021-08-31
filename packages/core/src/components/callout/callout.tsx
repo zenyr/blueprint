@@ -15,11 +15,12 @@
  */
 
 import classNames from "classnames";
-import * as React from "react";
-import { polyfill } from "react-lifecycles-compat";
+import React from "react";
+
+import { IconName, IconSize } from "@blueprintjs/icons";
 
 import {
-    AbstractPureComponent2,
+    AbstractPureComponent,
     Classes,
     DISPLAYNAME_PREFIX,
     HTMLDivProps,
@@ -29,12 +30,10 @@ import {
     MaybeElement,
 } from "../../common";
 import { H4 } from "../html/html";
-import { Icon, IconName, IconSize } from "../icon/icon";
+import { Icon } from "../icon/icon";
 
-// eslint-disable-next-line deprecation/deprecation
-export type CalloutProps = ICalloutProps;
-/** @deprecated use CalloutProps */
-export interface ICalloutProps extends IntentProps, Props, HTMLDivProps {
+/** This component also supports the full range of HTML `<div>` props. */
+export interface CalloutProps extends IntentProps, Props, HTMLDivProps {
     /**
      * Name of a Blueprint UI icon (or an icon element) to render on the left side.
      *
@@ -61,9 +60,7 @@ export interface ICalloutProps extends IntentProps, Props, HTMLDivProps {
     title?: string;
 }
 
-/** This component supports the full range of HTML `<div>` props. */
-@polyfill
-export class Callout extends AbstractPureComponent2<CalloutProps> {
+export class Callout extends AbstractPureComponent<CalloutProps> {
     public static displayName = `${DISPLAYNAME_PREFIX}.Callout`;
 
     public render() {

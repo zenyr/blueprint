@@ -16,11 +16,11 @@
 
 import { IHeadingNode, IPageData, isPageNode, ITsDocBase } from "@documentalist/client";
 import classNames from "classnames";
-import * as React from "react";
+import React from "react";
 
 import { AnchorButton, Classes, HotkeysProvider, Tag } from "@blueprintjs/core";
-import { IDocsCompleteData } from "@blueprintjs/docs-data";
-import { Banner, Documentation, IDocumentationProps, NavMenuItemProps, NavMenuItem } from "@blueprintjs/docs-theme";
+import { DocsCompleteData } from "@blueprintjs/docs-data";
+import { Banner, Documentation, DocumentationProps, NavMenuItemProps, NavMenuItem } from "@blueprintjs/docs-theme";
 
 import { NavHeader } from "./navHeader";
 import { NavIcon } from "./navIcons";
@@ -50,21 +50,22 @@ export function setTheme(themeName: string) {
     localStorage.setItem(THEME_LOCAL_STORAGE_KEY, themeName);
 }
 
-export interface IBlueprintDocsProps {
-    docs: IDocsCompleteData;
-    defaultPageId: IDocumentationProps["defaultPageId"];
-    tagRenderers: IDocumentationProps["tagRenderers"];
+export interface BlueprintDocsProps {
+    docs: DocsCompleteData;
+    defaultPageId: DocumentationProps["defaultPageId"];
+    tagRenderers: DocumentationProps["tagRenderers"];
     /** Whether to use `next` versions for packages (as opposed to `latest`). */
     useNextVersion: boolean;
 }
 
-export class BlueprintDocs extends React.Component<IBlueprintDocsProps, { themeName: string }> {
+export class BlueprintDocs extends React.Component<BlueprintDocsProps, { themeName: string }> {
     public state = { themeName: getTheme() };
 
     public render() {
         const banner = (
-            <Banner href="https://blueprintjs.com/docs/versions/4/" intent="success">
-                Blueprint v4.x is coming soon! Click here to view the pre-release docs &rarr;
+            <Banner href="https://blueprintjs.com/docs/">
+                This is a pre-release version of Blueprint v4.x. Click here to view the docs for the latest stable
+                release (v3.x) &rarr;
             </Banner>
         );
         const footer = (
