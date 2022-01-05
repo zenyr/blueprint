@@ -15,12 +15,14 @@
  */
 
 import { pascalCase } from "change-case";
-import { PascalCase } from "type-fest";
 
-import type { IconName } from "./generated/blueprint-icons";
+import type { IconName } from "./iconNames";
+import type { PascalCase } from "./type-utils";
 
+/* eslint-disable @typescript-eslint/no-var-requires */
 export const IconSvgPaths16 = require("./generated/16px/paths") as Record<PascalCase<IconName>, string[]>;
 export const IconSvgPaths20 = require("./generated/20px/paths") as Record<PascalCase<IconName>, string[]>;
+/* eslint-enable @typescript-eslint/no-var-requires */
 
 /**
  * Type safe string literal conversion of snake-case icon names to PascalCase icon names,

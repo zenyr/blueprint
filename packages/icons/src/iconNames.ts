@@ -17,14 +17,16 @@
 /* eslint-disable camelcase */
 
 import { pascalCase, snakeCase } from "change-case";
-import { PascalCase, ScreamingSnakeCase } from "type-fest";
 
-import { IconName, IconCodepoints } from "./generated/blueprint-icons";
+import { IconCodepoints, IconName } from "./generated/blueprint-icons";
+import type { PascalCase, ScreamingSnakeCase } from "./type-utils";
+
+export type { IconName };
 
 const IconNamesNew = {} as Record<PascalCase<IconName>, IconName>;
 const IconNamesLegacy = {} as Record<ScreamingSnakeCase<IconName>, IconName>;
 
-for (const name of Object.keys(IconCodepoints) as IconName[]) {
+for (const name of Object.values(IconCodepoints) as IconName[]) {
     IconNamesNew[pascalCase(name) as PascalCase<IconName>] = name;
     IconNamesLegacy[snakeCase(name).toUpperCase() as ScreamingSnakeCase<IconName>] = name;
 }

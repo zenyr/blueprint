@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
-export { IconSvgPaths16, IconSvgPaths20, iconNameToPathsRecordKey } from "./iconSvgPaths";
-export { getIconContentString, IconCodepoints } from "./iconCodepoints";
-export { IconName, IconNames } from "./iconNames";
+/** @fileoverview Mapped type utils copied from the "type-fest" package */
+
+export { PascalCase } from "./pascal-case";
+export { ScreamingSnakeCase } from "./screaming-snake-case";
