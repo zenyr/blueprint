@@ -21,7 +21,7 @@ const fs = require("fs");
 const path = require("path");
 const svgtofont = require("svgtofont");
 
-const { BUILD_DIR, GENERATED_SRC_DIR, NS } = require("./common");
+const { RESOURCES_DIR, GENERATED_SRC_DIR, NS } = require("./common");
 const WEBFONT_FORMATS = ["ttf", "eot", "woff", "woff2"];
 
 (async function () {
@@ -38,18 +38,22 @@ async function generateFonts(size, prefix) {
     const outputDir = path.join(GENERATED_SRC_DIR, `${size}px`);
     fs.mkdirSync(path.join(outputDir, "paths"), { recursive: true });
 
+    const templatesDir = path.join(GENERATED_SRC_DIR, "../templates-svgtofont");
+
     console.info(`Generating ${size}px webfont...`);
     return svgtofont({
-        src: path.join(BUILD_DIR, `${size}px`),
+        src: path.join(RESOURCES_DIR, `${size}px`),
         dist: outputDir,
         fontName: `blueprint-icons-${size}`,
         css: true,
         classNamePrefix: prefix,
         outSVGPath: true,
+        styleTemplates: templatesDir,
         svgicons2svgfont: {
             fontHeight: size,
             normalize: true,
         },
+        typescript: true,
     });
 }
 
