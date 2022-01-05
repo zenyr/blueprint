@@ -27,6 +27,7 @@
         "dist:verify": "assert-package-layout",
         "generate-icon-src": "node scripts/generate-icon-fonts.js && node scripts/generate-icon-paths.js",
         "generate-icon-src-v2": "node scripts/prepare-icon-svgs.js && node scripts/generate-icon-fonts-with-webfont.js && node scripts/generate-icon-paths.js",
+        "generate-icon-src-v3": "node scripts/generate-icon-fonts-v3.js && node scripts/generate-icon-paths.js",
         "lint": "run-p lint:scss lint:es",
         "lint:scss": "sass-lint",
         "lint:es": "es-lint",
@@ -54,6 +55,7 @@
         "react-dom": "^16.14.0",
         "react-test-renderer": "^16.14.0",
         "svgo": "^1.3.2",
+        "svgtofont": "^3.13.1",
         "typescript": "~4.1.2",
         "webfont": "^11.2.26",
         "webpack-cli": "^3.3.12"

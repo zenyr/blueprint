@@ -20,14 +20,14 @@
 const { generateFonts: runFantasticon, FontAssetType, OtherAssetType } = require("fantasticon");
 const { getLogger } = require("fantasticon/lib/cli/logger");
 const fs = require("fs");
-const path = require("path");
 const svgFixer = require("oslllo-svg-fixer");
+const path = require("path");
 
 const { BUILD_DIR, RESOURCES_DIR, GENERATED_SRC_DIR, NS } = require("./common");
 
 const logger = getLogger();
 
-(async function() {
+(async function () {
     logger.start();
     await fixSVGs(16);
     await fixSVGs(20);
@@ -51,7 +51,7 @@ async function generateFonts(size, prefix) {
         name: `blueprint-icons-${size}`,
         inputDir: path.join(BUILD_DIR, `${size}px`),
         outputDir: path.join(GENERATED_SRC_DIR, `${size}px`),
-        fontHeight: size,
+        fontHeight: undefined,
         fontTypes: [FontAssetType.TTF, FontAssetType.EOT, FontAssetType.WOFF2, FontAssetType.WOFF, FontAssetType.SVG],
         // CSS contains @font-face, SCSS contains codepoints, TS contains enums & codepoints
         assetTypes: [OtherAssetType.CSS, OtherAssetType.SCSS, OtherAssetType.TS],
@@ -69,7 +69,5 @@ async function generateFonts(size, prefix) {
 }
 
 function connectToLogger(runner) {
-    return runner
-        .then(results => logger.results(results))
-        .catch(error => logger.error(error));
+    return runner.then(results => logger.results(results)).catch(error => logger.error(error));
 }
